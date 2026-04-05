@@ -20,6 +20,47 @@ KryptVault ensures that every file is **validated, encrypted, and access-control
 
 ---
 
+## 📸 Screenshots
+
+### 🔐 Authentication
+![Login](assets/screenshots/login.png)
+
+---
+
+### 📊 Dashboard
+![Dashboard](assets/screenshots/dashboard.png)
+
+---
+
+### 📤 File Upload Flow
+![Upload](assets/screenshots/upload.png)
+![Upload Final](assets/screenshots/upload-final.png)
+
+---
+
+### 📁 Vault
+![Vault](assets/screenshots/vault.png)
+
+---
+
+### 🔍 File Preview
+![Preview](assets/screenshots/file-preview.png)
+
+---
+
+### 📥 Dropbox (File Sharing)
+![Dropbox](assets/screenshots/dropbox.png)
+
+---
+
+### 🔐 Private Space Protection
+![Private Space](assets/screenshots/private-space.png)
+
+---
+
+### 📊 Audit Logs
+![Audit Log](assets/screenshots/audit-log.png)
+
 ## 🧠 System Design Overview
 
 KryptVault follows a **layered security architecture**:
