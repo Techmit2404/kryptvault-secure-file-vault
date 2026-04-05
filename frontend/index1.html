@@ -1,0 +1,3025 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Krypt Vault</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════════
+   DESIGN TOKENS
+══════════════════════════════════════════ */
+:root {
+  --ink:        #0d1117;
+  --ink-mid:    #1a2233;
+  --ink-soft:   #2c3a52;
+  --gold:       #b8975a;
+  --gold-hi:    #d4b06a;
+  --gold-pale:  #f9f4ea;
+  --gold-rim:   rgba(184,151,90,0.25);
+  --ivory:      #faf8f4;
+  --white:      #ffffff;
+  --mist:       #f2f0eb;
+  --fog:        #e8e4dc;
+  --steel:      #7a8595;
+  --steel-lt:   #adb5c4;
+  --line:       #e6e2d9;
+  --success:    #1f8c5e;
+  --danger:     #b93328;
+  --warn:       #c07a1a;
+  --info:       #2563eb;
+  --shadow-xs:  0 1px 4px rgba(13,17,23,0.05);
+  --shadow-sm:  0 4px 16px rgba(13,17,23,0.07);
+  --shadow-md:  0 12px 40px rgba(13,17,23,0.10);
+  --shadow-lg:  0 24px 80px rgba(13,17,23,0.14);
+  --shadow-xl:  0 40px 120px rgba(13,17,23,0.18);
+  --r-sm:       10px;
+  --r-md:       16px;
+  --r-lg:       22px;
+  --r-xl:       28px;
+  --transition: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ══ RESET ══ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-font-smoothing: antialiased; }
+body { font-family: 'DM Sans', sans-serif; background: var(--ivory); color: var(--ink); min-height: 100vh; overflow-x: hidden; }
+
+/* ══ SCROLLBAR ══ */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--fog); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--steel-lt); }
+
+/* ══ SELECTION ══ */
+::selection { background: rgba(184,151,90,0.2); }
+
+/* ══════════════════════════════════════════
+   AUTH
+══════════════════════════════════════════ */
+#auth-screen {
+  min-height: 100vh;
+  display: flex;
+  background: var(--ivory);
+  position: relative;
+  overflow: hidden;
+}
+
+.auth-left {
+  width: 44%;
+  background: var(--ink);
+  padding: 60px 56px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.auth-left-pattern {
+  position: absolute;
+  inset: 0;
+  opacity: 0.04;
+  background-image:
+    repeating-linear-gradient(45deg, var(--gold) 0, var(--gold) 1px, transparent 0, transparent 50%);
+  background-size: 28px 28px;
+}
+
+.auth-left-glow {
+  position: absolute;
+  width: 480px; height: 480px;
+  background: radial-gradient(circle, rgba(184,151,90,0.12) 0%, transparent 65%);
+  bottom: -80px; right: -120px;
+  pointer-events: none;
+}
+
+.auth-brand {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.auth-brand-shield {
+  width: 46px; height: 46px;
+  border: 1.5px solid rgba(184,151,90,0.5);
+  border-radius: 13px;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(184,151,90,0.08);
+}
+
+.auth-brand-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--white);
+  letter-spacing: -0.3px;
+}
+
+.auth-brand-name em { color: var(--gold-hi); font-style: normal; }
+
+.auth-copy {
+  position: relative;
+  z-index: 1;
+}
+
+.auth-copy-headline {
+  font-family: 'Playfair Display', serif;
+  font-size: 42px;
+  font-weight: 700;
+  color: var(--white);
+  line-height: 1.15;
+  letter-spacing: -1px;
+  margin-bottom: 18px;
+}
+
+.auth-copy-headline em {
+  color: var(--gold-hi);
+  font-style: italic;
+}
+
+.auth-copy-sub {
+  font-size: 15px;
+  color: rgba(255,255,255,0.45);
+  line-height: 1.65;
+  max-width: 300px;
+}
+
+.auth-features {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.auth-feature {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+  color: rgba(255,255,255,0.5);
+}
+
+.auth-feature-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--gold);
+  flex-shrink: 0;
+}
+
+.auth-right {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 40px;
+}
+
+.auth-form-wrap {
+  width: 100%;
+  max-width: 400px;
+  animation: riseIn 0.55s var(--transition);
+}
+
+@keyframes riseIn {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.auth-form-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 30px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 6px;
+}
+
+.auth-form-sub {
+  font-size: 14px;
+  color: var(--steel);
+  margin-bottom: 32px;
+}
+
+.auth-tabs {
+  display: flex;
+  gap: 0;
+  border: 1.5px solid var(--line);
+  border-radius: 12px;
+  padding: 4px;
+  margin-bottom: 28px;
+  background: var(--mist);
+}
+
+.auth-tab-btn {
+  flex: 1;
+  padding: 10px 14px;
+  border: none;
+  background: none;
+  border-radius: 9px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--steel);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.auth-tab-btn.on {
+  background: var(--white);
+  color: var(--ink);
+  box-shadow: var(--shadow-xs);
+}
+
+.fld { margin-bottom: 18px; }
+
+.fld-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--steel);
+  margin-bottom: 8px;
+}
+
+.fld-input {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1.5px solid var(--line);
+  border-radius: var(--r-sm);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  color: var(--ink);
+  background: var(--white);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.fld-input:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(184,151,90,0.12);
+}
+
+.btn-auth {
+  width: 100%;
+  padding: 14px;
+  background: var(--ink);
+  color: var(--white);
+  border: none;
+  border-radius: var(--r-sm);
+  font-family: 'Playfair Display', serif;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 6px;
+  letter-spacing: 0.2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.btn-auth:hover { background: var(--ink-mid); transform: translateY(-1px); box-shadow: var(--shadow-md); }
+
+/* ══════════════════════════════════════════
+   APP SHELL
+══════════════════════════════════════════ */
+#app-screen { display: none; height: 100vh; flex-direction: column; }
+#app-screen.on { display: flex; }
+
+/* ══ TOPBAR ══ */
+.topbar {
+  height: 60px;
+  background: var(--white);
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  gap: 16px;
+  flex-shrink: 0;
+  z-index: 200;
+}
+
+.tb-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  text-decoration: none;
+}
+
+.tb-logo-mark {
+  width: 32px; height: 32px;
+  background: var(--ink);
+  border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.tb-logo-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.tb-logo-name em { color: var(--gold); font-style: normal; }
+
+.tb-divider { width: 1px; height: 28px; background: var(--line); flex-shrink: 0; }
+
+.tb-nav { display: flex; gap: 2px; flex: 1; }
+
+.tb-nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 13px;
+  border: none;
+  background: none;
+  border-radius: 8px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--steel);
+  cursor: pointer;
+  transition: all 0.18s;
+  white-space: nowrap;
+  position: relative;
+}
+
+.tb-nav-btn:hover { background: var(--mist); color: var(--ink); }
+.tb-nav-btn.on { color: var(--ink); background: var(--gold-pale); }
+.tb-nav-btn.on::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 20px;
+  height: 2px;
+  background: var(--gold);
+  border-radius: 2px;
+}
+
+.tb-nav-btn svg { opacity: 0.55; transition: opacity 0.18s; flex-shrink: 0; }
+.tb-nav-btn:hover svg, .tb-nav-btn.on svg { opacity: 1; }
+
+.tb-right { display: flex; align-items: center; gap: 10px; margin-left: auto; flex-shrink: 0; }
+
+.tb-vault-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 12px;
+  background: var(--gold-pale);
+  border: 1px solid var(--gold-rim);
+  border-radius: 20px;
+  font-size: 12px;
+  color: var(--gold);
+  font-weight: 600;
+}
+
+.tb-user {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 12px 5px 6px;
+  background: var(--mist);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+}
+
+.tb-avatar {
+  width: 26px; height: 26px;
+  background: var(--ink);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Playfair Display', serif;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--gold);
+}
+
+.tb-username { font-size: 13px; font-weight: 500; color: var(--ink); }
+
+.btn-logout {
+  padding: 7px 13px;
+  background: none;
+  border: 1.5px solid var(--line);
+  border-radius: 8px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--steel);
+  cursor: pointer;
+  transition: all 0.18s;
+}
+.btn-logout:hover { border-color: var(--danger); color: var(--danger); }
+
+/* ══ CONTENT ══ */
+.main-content { flex: 1; overflow-y: auto; padding: 32px 36px; }
+
+/* ══ PAGE HEADER ══ */
+.ph { margin-bottom: 30px; }
+.ph-title { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 700; color: var(--ink); letter-spacing: -0.5px; }
+.ph-sub { font-size: 13.5px; color: var(--steel); margin-top: 4px; }
+
+/* ══════════════════════════════════════════
+   DASHBOARD
+══════════════════════════════════════════ */
+.dash-hero {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 320px;
+  gap: 18px;
+  margin-bottom: 24px;
+}
+
+.stat-tile {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  padding: 24px 26px;
+  transition: transform 0.25s var(--transition), box-shadow 0.25s;
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-tile:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+
+.stat-tile-accent {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 3px;
+  background: var(--gold);
+  border-radius: var(--r-lg) var(--r-lg) 0 0;
+}
+
+.stat-label-top {
+  font-size: 10.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: var(--steel);
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.stat-label-top svg { opacity: 0.5; }
+
+.stat-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 38px;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1;
+  margin-bottom: 6px;
+}
+
+.stat-num-unit {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  color: var(--steel);
+}
+
+.stat-foot { font-size: 12.5px; color: var(--steel-lt); }
+
+/* STORAGE GAUGE TILE */
+.storage-tile {
+  background: var(--ink);
+  border-radius: var(--r-lg);
+  padding: 26px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+}
+
+.storage-tile::before {
+  content: '';
+  position: absolute;
+  width: 280px; height: 280px;
+  background: radial-gradient(circle, rgba(184,151,90,0.10) 0%, transparent 65%);
+  bottom: -80px; right: -80px;
+  pointer-events: none;
+}
+
+.storage-tile-top {
+  font-size: 10.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: rgba(255,255,255,0.4);
+  margin-bottom: 16px;
+}
+
+.storage-gauge-wrap {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  position: relative;
+  z-index: 1;
+}
+
+.storage-arc-svg { flex-shrink: 0; }
+
+.storage-arc-bg { fill: none; stroke: rgba(255,255,255,0.08); stroke-width: 8; }
+.storage-arc-fill { fill: none; stroke: var(--gold); stroke-width: 8; stroke-linecap: round; transition: stroke-dashoffset 1.2s var(--transition); }
+
+.storage-nums { flex: 1; }
+.storage-used { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 700; color: var(--white); line-height: 1; margin-bottom: 4px; }
+.storage-used span { font-size: 14px; font-weight: 400; color: rgba(255,255,255,0.45); }
+.storage-total { font-size: 12px; color: rgba(255,255,255,0.35); }
+
+.storage-bar-outer {
+  height: 4px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 2px;
+  margin-top: 14px;
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+}
+
+.storage-bar-inner {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold), var(--gold-hi));
+  border-radius: 2px;
+  transition: width 1.2s var(--transition);
+}
+
+.storage-pct { font-size: 11.5px; color: rgba(255,255,255,0.4); margin-top: 6px; position: relative; z-index: 1; }
+
+/* SECOND ROW */
+.dash-body {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 18px;
+}
+
+.dash-card {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+}
+
+.dc-head {
+  padding: 18px 22px;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.dc-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.dc-action {
+  font-size: 12.5px;
+  color: var(--gold);
+  font-weight: 500;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+.dc-action:hover { color: var(--gold-hi); }
+
+/* RECENT FILES */
+.rf-row {
+  display: grid;
+  grid-template-columns: 36px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 22px;
+  border-bottom: 1px solid var(--line);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.rf-row:last-child { border-bottom: none; }
+.rf-row:hover { background: var(--ivory); }
+
+.rf-ext { width: 36px; height: 36px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+.rf-info { min-width: 0; }
+.rf-name { font-size: 13.5px; font-weight: 500; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rf-meta { font-size: 11.5px; color: var(--steel-lt); margin-top: 2px; }
+.rf-badge { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
+.rb-priv  { background: rgba(122,133,149,0.1); color: var(--steel); }
+.rb-pub   { background: rgba(31,140,94,0.1); color: var(--success); }
+.rb-prot  { background: rgba(184,151,90,0.12); color: var(--gold); }
+
+/* SECURITY PANEL */
+.sec-panel {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+}
+
+.sec-head {
+  padding: 18px 22px;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sec-head-title { font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 600; color: var(--ink); }
+
+.sec-item {
+  display: flex;
+  align-items: center;
+  padding: 13px 22px;
+  gap: 12px;
+  border-bottom: 1px solid var(--line);
+}
+.sec-item:last-child { border-bottom: none; }
+
+.sec-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.sec-green { background: #22c55e; box-shadow: 0 0 6px rgba(34,197,94,0.5); }
+.sec-gold  { background: var(--gold); box-shadow: 0 0 6px rgba(184,151,90,0.4); }
+
+.sec-text { font-size: 13px; color: var(--steel); flex: 1; }
+.sec-status { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.7px; color: #22c55e; }
+.sec-status.gold { color: var(--gold); }
+
+/* TYPE BREAKDOWN */
+.type-row {
+  padding: 12px 22px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid var(--line);
+}
+.type-row:last-child { border-bottom: none; }
+.type-icon { font-size: 18px; width: 30px; text-align: center; flex-shrink: 0; }
+.type-label { font-size: 13px; color: var(--ink); flex: 1; font-weight: 500; }
+.type-count { font-size: 12px; color: var(--steel); font-family: 'JetBrains Mono', monospace; }
+.type-bar-wrap { width: 80px; height: 4px; background: var(--fog); border-radius: 2px; overflow: hidden; }
+.type-bar-fill { height: 100%; background: var(--gold); border-radius: 2px; transition: width 0.8s var(--transition); }
+
+/* ══════════════════════════════════════════
+   UPLOAD
+══════════════════════════════════════════ */
+.upload-wrap { max-width: 640px; margin: 0 auto; }
+
+.drop-zone {
+  border: 2px dashed var(--fog);
+  border-radius: var(--r-xl);
+  padding: 64px 40px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s var(--transition);
+  background: var(--white);
+  position: relative;
+  overflow: hidden;
+}
+
+.drop-zone::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 80%, rgba(184,151,90,0.05) 0%, transparent 65%);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.drop-zone:hover, .drop-zone.drag { border-color: var(--gold); background: var(--gold-pale); }
+.drop-zone:hover::before, .drop-zone.drag::before { opacity: 1; }
+
+.dz-icon {
+  width: 68px; height: 68px;
+  background: var(--mist);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 20px;
+  border: 1.5px solid var(--fog);
+  transition: all 0.3s var(--transition);
+  position: relative;
+}
+
+.drop-zone:hover .dz-icon {
+  background: var(--white);
+  border-color: var(--gold);
+  transform: scale(1.08);
+  box-shadow: 0 8px 24px rgba(184,151,90,0.2);
+}
+
+.dz-title { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 600; color: var(--ink); margin-bottom: 8px; }
+.dz-hint { font-size: 13.5px; color: var(--steel); margin-bottom: 6px; }
+.dz-types { font-size: 12px; color: var(--steel-lt); }
+
+#file-hidden { display: none; }
+
+.upload-card {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  padding: 22px;
+  margin-top: 16px;
+}
+
+.upload-card-title {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--steel);
+  margin-bottom: 14px;
+}
+
+.access-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+
+.acc-opt {
+  border: 1.5px solid var(--line);
+  border-radius: var(--r-md);
+  padding: 16px 12px;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s;
+}
+
+.acc-opt:hover { border-color: var(--gold-hi); background: var(--gold-pale); }
+.acc-opt.on { border-color: var(--gold); background: var(--gold-pale); }
+
+.acc-opt-icon { font-size: 22px; margin-bottom: 8px; }
+.acc-opt-name { font-size: 13px; font-weight: 600; color: var(--ink); }
+.acc-opt-desc { font-size: 11px; color: var(--steel); margin-top: 3px; }
+
+.file-preview-strip {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 16px;
+  background: var(--mist);
+  border-radius: var(--r-sm);
+  margin-top: 14px;
+  border: 1px solid var(--fog);
+}
+
+.fps-ext { width: 40px; height: 40px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+.fps-name { font-size: 13.5px; font-weight: 500; color: var(--ink); }
+.fps-size { font-size: 12px; color: var(--steel); margin-top: 2px; }
+
+.progress-bar-outer {
+  height: 5px;
+  background: var(--fog);
+  border-radius: 3px;
+  margin-top: 14px;
+  overflow: hidden;
+  display: none;
+}
+
+.progress-bar-inner {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold), var(--gold-hi));
+  border-radius: 3px;
+  transition: width 0.25s;
+  width: 0%;
+}
+
+.btn-upload {
+  width: 100%;
+  padding: 15px;
+  background: var(--ink);
+  color: var(--white);
+  border: none;
+  border-radius: var(--r-sm);
+  font-family: 'Playfair Display', serif;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.22s;
+  margin-top: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  letter-spacing: 0.2px;
+}
+
+.btn-upload:hover:not(:disabled) { background: var(--ink-soft); transform: translateY(-2px); box-shadow: 0 10px 30px rgba(13,17,23,0.25); }
+.btn-upload:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/* ══════════════════════════════════════════
+   VAULT
+══════════════════════════════════════════ */
+.vault-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 22px;
+  flex-wrap: wrap;
+}
+
+.search-wrap { position: relative; flex: 0 0 280px; }
+.search-wrap svg { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); opacity: 0.35; pointer-events: none; }
+.search-field {
+  width: 100%;
+  padding: 9px 13px 9px 38px;
+  border: 1.5px solid var(--line);
+  border-radius: var(--r-sm);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13.5px;
+  color: var(--ink);
+  background: var(--white);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.search-field:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(184,151,90,0.1); }
+
+.filter-pills { display: flex; gap: 6px; flex-wrap: wrap; }
+
+.filter-pill {
+  padding: 6px 13px;
+  border: 1.5px solid var(--line);
+  border-radius: 20px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--steel);
+  cursor: pointer;
+  background: var(--white);
+  transition: all 0.18s;
+  white-space: nowrap;
+}
+
+.filter-pill:hover { border-color: var(--ink); color: var(--ink); }
+.filter-pill.on { border-color: var(--ink); background: var(--ink); color: var(--white); }
+
+.view-switch {
+  display: flex;
+  gap: 3px;
+  background: var(--mist);
+  border: 1px solid var(--line);
+  padding: 3px;
+  border-radius: 9px;
+  margin-left: auto;
+}
+
+.vs-btn {
+  width: 30px; height: 30px;
+  display: flex; align-items: center; justify-content: center;
+  border: none; background: none; border-radius: 6px;
+  cursor: pointer; color: var(--steel); transition: all 0.18s;
+}
+.vs-btn.on { background: var(--white); color: var(--ink); box-shadow: var(--shadow-xs); }
+
+/* VAULT SECTIONS */
+.vault-sec { margin-bottom: 28px; }
+
+.vault-sec-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.vsec-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: var(--steel);
+}
+
+.vsec-count {
+  font-size: 10.5px;
+  font-weight: 700;
+  background: var(--fog);
+  color: var(--steel);
+  padding: 2px 8px;
+  border-radius: 20px;
+}
+
+.vsec-line { flex: 1; height: 1px; background: var(--line); }
+
+/* FILE CARDS GRID */
+.file-grid-wrap { display: grid; grid-template-columns: repeat(auto-fill, minmax(192px, 1fr)); gap: 14px; }
+
+.file-card {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  overflow: hidden;
+  transition: all 0.25s var(--transition);
+  cursor: pointer;
+  position: relative;
+}
+
+.file-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--gold-rim);
+}
+
+.file-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--gold);
+  transform: scaleX(0);
+  transition: transform 0.25s var(--transition);
+  transform-origin: left;
+}
+
+.file-card:hover::before { transform: scaleX(1); }
+
+.fc-thumb {
+  height: 116px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  position: relative;
+}
+
+.fc-lock-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(13,17,23,0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(2px);
+}
+
+.fc-body { padding: 12px; }
+.fc-name { font-size: 12.5px; font-weight: 600; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px; }
+.fc-meta { display: flex; align-items: center; justify-content: space-between; font-size: 11px; color: var(--steel-lt); }
+
+.fc-actions {
+  display: flex;
+  gap: 5px;
+  padding: 0 12px 12px;
+}
+
+.fc-btn {
+  flex: 1;
+  padding: 6px;
+  border: 1.5px solid var(--line);
+  border-radius: 7px;
+  font-size: 11.5px;
+  font-weight: 500;
+  cursor: pointer;
+  background: none;
+  color: var(--steel);
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  white-space: nowrap;
+}
+
+.fc-btn:hover { border-color: var(--ink); color: var(--ink); background: var(--mist); }
+.fc-btn.red:hover { border-color: var(--danger); color: var(--danger); background: #fdf2f2; }
+.fc-btn.amber:hover { border-color: var(--gold); color: var(--gold); background: var(--gold-pale); }
+
+/* FILE LIST */
+.file-list-wrap {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+}
+
+.fl-head {
+  display: grid;
+  grid-template-columns: 2fr 90px 110px 90px 130px;
+  padding: 11px 20px;
+  background: var(--mist);
+  border-bottom: 1px solid var(--line);
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--steel);
+  text-transform: uppercase;
+  letter-spacing: 0.9px;
+}
+
+.fl-row {
+  display: grid;
+  grid-template-columns: 2fr 90px 110px 90px 130px;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--line);
+  align-items: center;
+  transition: background 0.15s;
+  cursor: pointer;
+}
+
+.fl-row:last-child { border-bottom: none; }
+.fl-row:hover { background: var(--ivory); }
+
+.fl-name-cell { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.fl-name-text { font-size: 13.5px; font-weight: 500; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.fl-cell { font-size: 12.5px; color: var(--steel); }
+.fl-actions { display: flex; gap: 5px; }
+.fl-btn { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border: 1.5px solid var(--line); border-radius: 7px; cursor: pointer; background: none; color: var(--steel); transition: all 0.15s; }
+.fl-btn:hover { border-color: var(--ink); color: var(--ink); }
+.fl-btn.red:hover { border-color: var(--danger); color: var(--danger); }
+.fl-btn.amber:hover { border-color: var(--gold); color: var(--gold); }
+
+/* ══════════════════════════════════════════
+   DROPBOX
+══════════════════════════════════════════ */
+.dropbox-hero {
+  background: var(--ink);
+  border-radius: var(--r-xl);
+  padding: 32px 36px;
+  margin-bottom: 28px;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.dropbox-hero::before {
+  content: '';
+  position: absolute;
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(184,151,90,0.10) 0%, transparent 65%);
+  top: -150px; right: -100px;
+  pointer-events: none;
+}
+
+.dropbox-hero-pattern {
+  position: absolute;
+  inset: 0;
+  opacity: 0.03;
+  background-image: repeating-linear-gradient(45deg, var(--gold) 0, var(--gold) 1px, transparent 0, transparent 50%);
+  background-size: 22px 22px;
+}
+
+.dbh-left { position: relative; z-index: 1; }
+.dbh-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.3px; color: rgba(255,255,255,0.35); margin-bottom: 8px; }
+.dbh-title { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 700; color: var(--white); letter-spacing: -0.5px; margin-bottom: 8px; }
+.dbh-sub { font-size: 13.5px; color: rgba(255,255,255,0.45); }
+
+.dbh-right { position: relative; z-index: 1; text-align: right; }
+.dbh-count { font-family: 'Playfair Display', serif; font-size: 52px; font-weight: 700; color: var(--gold); line-height: 1; }
+.dbh-count-label { font-size: 12px; color: rgba(255,255,255,0.35); margin-top: 4px; }
+
+.dropbox-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+
+.dropbox-card {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  transition: all 0.25s var(--transition);
+  display: flex;
+  flex-direction: column;
+}
+
+.dropbox-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); border-color: var(--gold-rim); }
+
+.dbc-thumb {
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40px;
+  position: relative;
+}
+
+.dbc-from-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: rgba(13,17,23,0.7);
+  backdrop-filter: blur(4px);
+  color: var(--white);
+  font-size: 11px;
+  font-weight: 500;
+  padding: 3px 10px;
+  border-radius: 20px;
+}
+
+.dbc-body { padding: 16px; flex: 1; }
+.dbc-name { font-size: 14px; font-weight: 600; color: var(--ink); margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dbc-msg {
+  font-size: 12.5px;
+  color: var(--steel);
+  font-style: italic;
+  line-height: 1.5;
+  margin-bottom: 10px;
+  background: var(--mist);
+  padding: 8px 12px;
+  border-radius: 8px;
+  border-left: 3px solid var(--gold);
+}
+.dbc-meta { display: flex; align-items: center; justify-content: space-between; font-size: 11px; color: var(--steel-lt); }
+
+.dbc-actions { display: flex; gap: 8px; padding: 12px 16px; border-top: 1px solid var(--line); }
+.dbc-btn {
+  flex: 1;
+  padding: 8px 10px;
+  border: 1.5px solid var(--line);
+  border-radius: 9px;
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  background: none;
+  color: var(--steel);
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+.dbc-btn:hover { border-color: var(--ink); color: var(--ink); background: var(--mist); }
+.dbc-btn.primary { background: var(--ink); border-color: var(--ink); color: var(--white); }
+.dbc-btn.primary:hover { background: var(--ink-soft); }
+
+/* ══════════════════════════════════════════
+   AUDIT
+══════════════════════════════════════════ */
+.audit-wrap { background: var(--white); border: 1px solid var(--line); border-radius: var(--r-lg); overflow: hidden; }
+
+.audit-row {
+  display: grid;
+  grid-template-columns: 170px 120px 1fr 120px;
+  padding: 13px 22px;
+  border-bottom: 1px solid var(--line);
+  align-items: center;
+  font-size: 13px;
+  transition: background 0.15s;
+}
+
+.audit-row:last-child { border-bottom: none; }
+.audit-row:hover { background: var(--ivory); }
+.audit-row.head { background: var(--mist); font-size: 10.5px; font-weight: 700; color: var(--steel); text-transform: uppercase; letter-spacing: 0.9px; }
+
+.audit-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+.ab-upload  { background: rgba(31,140,94,0.1);  color: var(--success); }
+.ab-download{ background: rgba(37,99,235,0.1);  color: var(--info); }
+.ab-delete  { background: rgba(185,51,40,0.1);  color: var(--danger); }
+.ab-view    { background: rgba(184,151,90,0.12); color: var(--gold); }
+
+.audit-ts { font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: var(--steel); }
+.audit-fid { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--steel-lt); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.audit-ip { font-size: 12px; color: var(--steel-lt); }
+
+/* ══════════════════════════════════════════
+   MODALS & OVERLAYS
+══════════════════════════════════════════ */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(13,17,23,0.65);
+  backdrop-filter: blur(5px);
+  z-index: 900;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+
+.overlay.on { display: flex; animation: fadeIn 0.2s ease; }
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* VIEWER */
+.viewer-box {
+  background: var(--white);
+  border-radius: var(--r-xl);
+  width: min(94vw, 960px);
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-xl);
+  animation: modalRise 0.32s var(--transition);
+}
+
+@keyframes modalRise {
+  from { opacity: 0; transform: scale(0.93) translateY(24px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.vbox-head {
+  padding: 18px 22px;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-shrink: 0;
+}
+
+.vbox-title { font-family: 'Playfair Display', serif; font-size: 17px; font-weight: 600; color: var(--ink); flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vbox-close { width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; border: 1.5px solid var(--line); border-radius: 8px; cursor: pointer; background: none; color: var(--steel); font-size: 16px; transition: all 0.15s; flex-shrink: 0; }
+.vbox-close:hover { border-color: var(--danger); color: var(--danger); }
+
+.vbox-body { flex: 1; overflow: auto; padding: 24px; display: flex; align-items: center; justify-content: center; min-height: 280px; }
+.vbox-body img { max-width: 100%; max-height: 580px; border-radius: 10px; object-fit: contain; }
+.vbox-body iframe { width: 100%; height: 540px; border: none; border-radius: 10px; }
+.vbox-body video { max-width: 100%; max-height: 500px; border-radius: 10px; }
+.vbox-body audio { width: 100%; }
+
+.vbox-foot { padding: 16px 22px; border-top: 1px solid var(--line); display: flex; gap: 9px; justify-content: flex-end; flex-shrink: 0; }
+
+.vbox-btn {
+  padding: 9px 18px;
+  border-radius: 8px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.18s;
+  border: 1.5px solid var(--line);
+  background: none;
+  color: var(--steel);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.vbox-btn:hover { border-color: var(--ink); color: var(--ink); background: var(--mist); }
+.vbox-btn.primary { background: var(--ink); border-color: var(--ink); color: var(--white); }
+.vbox-btn.primary:hover { background: var(--ink-soft); transform: translateY(-1px); }
+
+/* SHARE MODAL */
+.share-box {
+  background: var(--white);
+  border-radius: var(--r-xl);
+  width: min(94vw, 420px);
+  padding: 32px;
+  box-shadow: var(--shadow-xl);
+  animation: modalRise 0.3s var(--transition);
+}
+
+.share-box-title { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+.share-box-sub { font-size: 13px; color: var(--steel); margin-bottom: 24px; }
+
+/* PIN MODAL */
+.pin-box {
+  background: var(--white);
+  border-radius: var(--r-xl);
+  width: min(94vw, 380px);
+  padding: 40px 36px;
+  box-shadow: var(--shadow-xl);
+  animation: modalRise 0.3s var(--transition);
+  text-align: center;
+}
+
+.pin-box-icon {
+  width: 64px; height: 64px;
+  background: var(--gold-pale);
+  border: 2px solid var(--gold-rim);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 18px;
+  font-size: 28px;
+}
+
+.pin-box-title { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700; color: var(--ink); margin-bottom: 6px; }
+.pin-box-sub { font-size: 13px; color: var(--steel); margin-bottom: 28px; line-height: 1.6; }
+
+.pin-input-row { display: flex; gap: 10px; justify-content: center; margin-bottom: 22px; }
+
+.pin-digit {
+  width: 56px; height: 64px;
+  border: 2px solid var(--line);
+  border-radius: 12px;
+  font-family: 'Playfair Display', serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--ink);
+  text-align: center;
+  background: var(--mist);
+  outline: none;
+  transition: all 0.2s;
+  caret-color: var(--gold);
+}
+
+.pin-digit:focus {
+  border-color: var(--gold);
+  background: var(--gold-pale);
+  box-shadow: 0 0 0 3px rgba(184,151,90,0.12);
+}
+
+.pin-digit.filled { background: var(--ink); color: var(--white); border-color: var(--ink); }
+
+.pin-error { color: var(--danger); font-size: 13px; margin-bottom: 16px; min-height: 20px; }
+
+.btn-pin-confirm {
+  width: 100%;
+  padding: 13px;
+  background: var(--ink);
+  color: var(--white);
+  border: none;
+  border-radius: var(--r-sm);
+  font-family: 'Playfair Display', serif;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: 10px;
+}
+
+.btn-pin-confirm:hover { background: var(--ink-soft); transform: translateY(-1px); box-shadow: var(--shadow-md); }
+
+.btn-pin-cancel {
+  width: 100%;
+  padding: 11px;
+  background: none;
+  color: var(--steel);
+  border: 1.5px solid var(--line);
+  border-radius: var(--r-sm);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.18s;
+}
+
+.btn-pin-cancel:hover { border-color: var(--danger); color: var(--danger); }
+
+/* PS indicator */
+.ps-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: linear-gradient(135deg, var(--gold-pale), #fef3c7);
+  border: 1px solid var(--gold-rim);
+  border-radius: var(--r-sm);
+  padding: 10px 16px;
+  margin-bottom: 16px;
+  font-size: 13px;
+  color: var(--gold);
+  font-weight: 500;
+}
+
+.ps-banner svg { flex-shrink: 0; }
+
+.ps-exit-btn {
+  margin-left: auto;
+  font-size: 12px;
+  background: none;
+  border: 1px solid var(--gold-rim);
+  color: var(--gold);
+  padding: 4px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.ps-exit-btn:hover { background: var(--gold); color: var(--white); }
+
+/* ══════════════════════════════════════════
+   TOAST
+══════════════════════════════════════════ */
+.toast-stack {
+  position: fixed;
+  top: 72px;
+  right: 20px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.toast-chip {
+  background: var(--ink);
+  color: var(--white);
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: 13.5px;
+  font-weight: 500;
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  max-width: 300px;
+  animation: toastSlide 0.3s var(--transition);
+  pointer-events: auto;
+  border-left: 3px solid var(--gold);
+}
+
+@keyframes toastSlide {
+  from { opacity: 0; transform: translateX(16px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.toast-chip.ok   { border-left-color: #22c55e; }
+.toast-chip.err  { border-left-color: #ef4444; }
+.toast-chip.info { border-left-color: var(--gold); }
+
+.toast-icon { font-size: 15px; flex-shrink: 0; }
+
+/* ══ HELPERS ══ */
+.spinner-wrap { display: flex; align-items: center; justify-content: center; padding: 80px; }
+.spinner { width: 34px; height: 34px; border: 2.5px solid var(--fog); border-top-color: var(--gold); border-radius: 50%; animation: spin 0.7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ══════════════════════════════════════════
+   SKELETON LOADERS
+══════════════════════════════════════════ */
+@keyframes shimmer {
+  0%   { background-position: -600px 0; }
+  100% { background-position: 600px 0; }
+}
+
+.skel {
+  background: linear-gradient(90deg, var(--fog) 25%, var(--mist) 50%, var(--fog) 75%);
+  background-size: 600px 100%;
+  animation: shimmer 1.5s infinite linear;
+  border-radius: 6px;
+}
+
+/* Stat tile skeleton */
+.skel-stat-tile {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  padding: 24px 26px;
+  overflow: hidden;
+}
+.skel-stat-tile .s-top   { height: 12px; width: 80px; margin-bottom: 16px; }
+.skel-stat-tile .s-num   { height: 36px; width: 100px; margin-bottom: 8px; }
+.skel-stat-tile .s-foot  { height: 11px; width: 120px; }
+
+/* Storage tile skeleton */
+.skel-storage-tile {
+  background: var(--ink);
+  border-radius: var(--r-lg);
+  padding: 26px;
+}
+.skel-storage-tile .skel { background: linear-gradient(90deg, rgba(255,255,255,0.07) 25%, rgba(255,255,255,0.13) 50%, rgba(255,255,255,0.07) 75%); background-size: 600px 100%; }
+.skel-storage-tile .s-top  { height: 12px; width: 100px; margin-bottom: 20px; }
+.skel-storage-tile .s-arc  { height: 52px; width: 90px; border-radius: 50% 50% 0 0; margin-bottom: 16px; }
+.skel-storage-tile .s-row  { height: 10px; width: 100%; margin-top: 14px; border-radius: 2px; }
+
+/* Dash body skeleton */
+.skel-recent-row {
+  display: grid;
+  grid-template-columns: 36px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 22px;
+  border-bottom: 1px solid var(--line);
+}
+.skel-recent-row .s-thumb { width: 36px; height: 36px; border-radius: 9px; flex-shrink: 0; }
+.skel-recent-row .s-name  { height: 13px; width: 60%; margin-bottom: 6px; }
+.skel-recent-row .s-meta  { height: 11px; width: 40%; }
+.skel-recent-row .s-badge { height: 18px; width: 52px; border-radius: 20px; }
+
+/* File card skeleton */
+.skel-file-card {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  overflow: hidden;
+}
+.skel-file-card .s-thumb { height: 116px; border-radius: 0; }
+.skel-file-card .s-body  { padding: 12px; }
+.skel-file-card .s-name  { height: 12px; width: 75%; margin-bottom: 6px; }
+.skel-file-card .s-meta  { height: 10px; width: 50%; }
+.skel-file-card .s-btns  { display: flex; gap: 5px; padding: 0 12px 12px; }
+.skel-file-card .s-btn   { flex: 1; height: 28px; border-radius: 7px; }
+
+/* Dropbox card skeleton */
+.skel-dropbox-card {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  overflow: hidden;
+}
+.skel-dropbox-card .s-thumb { height: 120px; border-radius: 0; }
+.skel-dropbox-card .s-body  { padding: 14px; }
+.skel-dropbox-card .s-name  { height: 13px; width: 80%; margin-bottom: 8px; }
+.skel-dropbox-card .s-meta  { height: 11px; width: 45%; margin-bottom: 12px; }
+.skel-dropbox-card .s-btns  { display: flex; gap: 8px; margin-top: 8px; }
+.skel-dropbox-card .s-btn   { flex: 1; height: 32px; border-radius: 9px; }
+
+/* Audit row skeleton */
+.skel-audit-row {
+  display: grid;
+  grid-template-columns: 170px 120px 1fr 120px;
+  padding: 13px 22px;
+  border-bottom: 1px solid var(--line);
+  align-items: center;
+  gap: 16px;
+}
+.skel-audit-row .s-cell { height: 13px; border-radius: 6px; }
+
+/* ══════════════════════════════════════════
+   MICRO-INTERACTIONS
+══════════════════════════════════════════ */
+
+/* Button press feedback */
+.fc-btn:active, .fl-btn:active, .dbc-btn:active, .vbox-btn:active, .btn-auth:active, .btn-upload:active, .btn-pin-confirm:active {
+  transform: scale(0.96);
+  box-shadow: none !important;
+}
+
+.filter-pill:active, .auth-tab-btn:active {
+  transform: scale(0.97);
+}
+
+/* Enhanced card hover depth */
+.file-card {
+  transition: all 0.28s var(--transition);
+  will-change: transform;
+}
+.file-card:hover {
+  transform: translateY(-5px) scale(1.012);
+  box-shadow: 0 16px 48px rgba(13,17,23,0.12), 0 2px 8px rgba(184,151,90,0.08);
+  border-color: rgba(184,151,90,0.3);
+}
+
+.dropbox-card {
+  transition: all 0.28s var(--transition);
+  will-change: transform;
+}
+.dropbox-card:hover {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: 0 14px 40px rgba(13,17,23,0.1);
+  border-color: rgba(184,151,90,0.2);
+}
+
+.stat-tile {
+  transition: transform 0.28s var(--transition), box-shadow 0.28s var(--transition);
+  will-change: transform;
+}
+.stat-tile:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 14px 40px rgba(13,17,23,0.1);
+}
+
+/* Nav button press */
+.tb-nav-btn:active { transform: scale(0.96); }
+
+/* Page view transitions */
+.view-enter {
+  animation: viewEnter 0.38s var(--transition) both;
+}
+@keyframes viewEnter {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Upload success state */
+@keyframes checkDraw {
+  from { stroke-dashoffset: 60; opacity: 0; }
+  to   { stroke-dashoffset: 0; opacity: 1; }
+}
+
+@keyframes successPop {
+  0%   { transform: scale(0.6); opacity: 0; }
+  60%  { transform: scale(1.1); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.upload-success-ring {
+  animation: successPop 0.55s var(--transition) both;
+}
+
+.upload-success-check {
+  stroke-dasharray: 60;
+  stroke-dashoffset: 60;
+  animation: checkDraw 0.45s 0.25s var(--transition) both;
+}
+
+/* Progress bar shimmer on upload */
+.progress-bar-inner.uploading {
+  background: linear-gradient(90deg, var(--gold), var(--gold-hi), var(--gold));
+  background-size: 200% 100%;
+  animation: progressShimmer 1.2s linear infinite;
+}
+
+@keyframes progressShimmer {
+  from { background-position: 200% 0; }
+  to   { background-position: -200% 0; }
+}
+
+/* Toast entry */
+.toast-chip {
+  animation: toastEnter 0.32s var(--transition) both;
+}
+@keyframes toastEnter {
+  from { opacity: 0; transform: translateX(20px) scale(0.95); }
+  to   { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+.toast-chip.dismissing {
+  animation: toastExit 0.28s ease forwards;
+}
+@keyframes toastExit {
+  to { opacity: 0; transform: translateX(20px) scale(0.92); max-height: 0; padding: 0; margin: 0; }
+}
+
+/* Share modal access-level indicator */
+.share-access-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 18px;
+}
+.share-access-badge.public   { background: rgba(31,140,94,0.1); color: var(--success); }
+.share-access-badge.protected { background: rgba(184,151,90,0.12); color: var(--gold); }
+.share-access-badge.private  { background: rgba(185,51,40,0.1); color: var(--danger); }
+
+.empty-state { text-align: center; padding: 80px 40px; color: var(--steel); }
+.empty-ico { font-size: 52px; margin-bottom: 16px; opacity: 0.4; }
+.empty-title { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 600; color: var(--ink); margin-bottom: 6px; }
+.empty-sub { font-size: 13.5px; }
+
+/* ANIM */
+.fade-in { animation: fadeIn 0.35s ease; }
+.rise-in { animation: riseIn 0.4s var(--transition); }
+
+/* EXT COLORS */
+.ext-pdf  { background: rgba(220,38,38,0.08); color: #dc2626; }
+.ext-jpg, .ext-jpeg { background: rgba(124,58,237,0.08); color: #7c3aed; }
+.ext-png  { background: rgba(37,99,235,0.08); color: #2563eb; }
+.ext-mp4  { background: rgba(161,98,7,0.1); color: #a16207; }
+.ext-mp3  { background: rgba(4,120,87,0.08); color: #047857; }
+.ext-txt  { background: rgba(75,85,99,0.08); color: #4b5563; }
+.ext-def  { background: rgba(184,151,90,0.1); color: var(--gold); }
+
+.th-pdf  { background: linear-gradient(135deg, #fff5f5, #fee2e2); }
+.th-jpg, .th-jpeg { background: linear-gradient(135deg, #f5f3ff, #ede9fe); }
+.th-png  { background: linear-gradient(135deg, #eff6ff, #dbeafe); }
+.th-mp4  { background: linear-gradient(135deg, #fffbeb, #fef3c7); }
+.th-mp3  { background: linear-gradient(135deg, #f0fdf4, #dcfce7); }
+.th-txt  { background: linear-gradient(135deg, #f9fafb, #f3f4f6); }
+.th-def  { background: linear-gradient(135deg, var(--gold-pale), #fef3c7); }
+
+/* RESPONSIVE */
+@media (max-width: 1100px) { .dash-hero { grid-template-columns: 1fr 1fr; } .storage-tile { grid-column: span 2; } }
+@media (max-width: 860px) { .dash-body { grid-template-columns: 1fr; } .dash-hero { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 600px) { .main-content { padding: 16px; } .auth-left { display: none; } .dash-hero { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════
+     AUTH
+══════════════════════════════════════════ -->
+<div id="auth-screen">
+  <div class="auth-left">
+    <div class="auth-left-pattern"></div>
+    <div class="auth-left-glow"></div>
+
+    <div class="auth-brand">
+      <div class="auth-brand-shield">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2L4 6v6c0 5.25 3.5 10.15 8 11.35C16.5 22.15 20 17.25 20 12V6L12 2z" fill="#b8975a"/>
+          <path d="M9 12l2 2 4-4" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="auth-brand-name">Krypt<em>Vault</em></div>
+    </div>
+
+    <div class="auth-copy">
+      <div class="auth-copy-headline">Your files,<br><em>encrypted.</em><br>Always.</div>
+      <div class="auth-copy-sub">Military-grade AES-256 encryption with per-file keys and secure key wrapping. Your vault, your rules.</div>
+    </div>
+
+    <div class="auth-features">
+      <div class="auth-feature"><div class="auth-feature-dot"></div>AES-256-GCM per-file encryption</div>
+      <div class="auth-feature"><div class="auth-feature-dot"></div>KEK-wrapped data encryption keys</div>
+      <div class="auth-feature"><div class="auth-feature-dot"></div>SHA-256 integrity verification</div>
+      <div class="auth-feature"><div class="auth-feature-dot"></div>Granular access level control</div>
+      <div class="auth-feature"><div class="auth-feature-dot"></div>Full audit trail logging</div>
+    </div>
+  </div>
+
+  <div class="auth-right">
+    <div class="auth-form-wrap">
+      <div class="auth-tabs">
+        <button class="auth-tab-btn on" id="tab-in"  onclick="switchTab('in')">Sign In</button>
+        <button class="auth-tab-btn"    id="tab-up"  onclick="switchTab('up')">Register</button>
+      </div>
+
+      <div id="form-in">
+        <div class="auth-form-title">Welcome back.</div>
+        <div class="auth-form-sub">Enter your credentials to access your vault.</div>
+        <div class="fld">
+          <label class="fld-label">Username</label>
+          <input class="fld-input" id="in-user" placeholder="your_username" autocomplete="username">
+        </div>
+        <div class="fld">
+          <label class="fld-label">Password</label>
+          <input class="fld-input" id="in-pass" type="password" placeholder="••••••••" autocomplete="current-password">
+        </div>
+        <button class="btn-auth" onclick="doLogin()">
+          Enter Vault
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+
+      <div id="form-up" style="display:none">
+        <div class="auth-form-title">Create account.</div>
+        <div class="auth-form-sub">Join KryptVault — your files deserve protection.</div>
+        <div class="fld">
+          <label class="fld-label">Username</label>
+          <input class="fld-input" id="up-user" placeholder="choose_username" autocomplete="username">
+        </div>
+        <div class="fld">
+          <label class="fld-label">Password <span style="font-weight:400;text-transform:none;letter-spacing:0">(min 6 chars)</span></label>
+          <input class="fld-input" id="up-pass" type="password" placeholder="••••••••" autocomplete="new-password">
+        </div>
+        <button class="btn-auth" onclick="doRegister()">
+          Create Account
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     APP
+══════════════════════════════════════════ -->
+<div id="app-screen">
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="tb-logo">
+      <div class="tb-logo-mark">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2L4 6v6c0 5.25 3.5 10.15 8 11.35C16.5 22.15 20 17.25 20 12V6L12 2z" fill="#b8975a"/>
+        </svg>
+      </div>
+      <span class="tb-logo-name">Krypt<em>Vault</em></span>
+    </div>
+
+    <div class="tb-divider"></div>
+
+    <nav class="tb-nav">
+      <button class="tb-nav-btn on" id="nb-dash"    onclick="go('dash',this)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        Dashboard
+      </button>
+      <button class="tb-nav-btn" id="nb-upload"  onclick="go('upload',this)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        Upload
+      </button>
+      <button class="tb-nav-btn" id="nb-vault"   onclick="go('vault',this)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="15" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/><circle cx="12" cy="14" r="2"/><path d="M12 16v1.5"/></svg>
+        Vault
+      </button>
+      <button class="tb-nav-btn" id="nb-dropbox" onclick="go('dropbox',this)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.5a19.79 19.79 0 01-3.07-8.63A2 2 0 012 .84h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 8.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+        Dropbox
+      </button>
+      <button class="tb-nav-btn" id="nb-audit"   onclick="go('audit',this)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        Audit Log
+      </button>
+    </nav>
+
+    <div class="tb-right">
+      <div class="tb-vault-badge" id="ps-indicator" style="display:none">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+        Private Space
+      </div>
+      <div class="tb-user">
+        <div class="tb-avatar" id="tb-avatar">?</div>
+        <span class="tb-username" id="tb-uname">—</span>
+      </div>
+      <button class="btn-logout" onclick="doLogout()">Sign Out</button>
+    </div>
+  </div>
+
+  <div class="main-content" id="mc"></div>
+</div>
+
+<!-- ══ VIEWER OVERLAY ══ -->
+<div class="overlay" id="viewer-ov" onclick="closeViewer(event)">
+  <div class="viewer-box" onclick="event.stopPropagation()">
+    <div class="vbox-head">
+      <div class="rf-ext" id="vb-ext-badge" style="width:34px;height:34px;border-radius:8px;font-size:12px"></div>
+      <div class="vbox-title" id="vb-title">—</div>
+      <button class="vbox-close" onclick="closeViewerDirect()">✕</button>
+    </div>
+    <div class="vbox-body" id="vb-body"></div>
+    <div class="vbox-foot" id="vb-foot"></div>
+  </div>
+</div>
+
+<!-- ══ SHARE OVERLAY ══ -->
+<div class="overlay" id="share-ov" onclick="closeShareOv(event)">
+  <div class="share-box" onclick="event.stopPropagation()">
+    <div class="share-box-title">Share File</div>
+    <div class="share-box-sub" id="sh-filename">—</div>
+    <div id="sh-access-badge" class="share-access-badge public" style="margin-bottom:18px"></div>
+    <div class="fld">
+      <label class="fld-label">Recipient Username</label>
+      <input class="fld-input" id="sh-user" placeholder="username">
+    </div>
+    <div class="fld">
+      <label class="fld-label">Message <span style="font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label>
+      <textarea class="fld-input" id="sh-msg" placeholder="Here's that file you requested..." rows="3" style="resize:none"></textarea>
+    </div>
+    <div style="display:flex;gap:9px;margin-top:4px">
+      <button class="vbox-btn" style="flex:1" onclick="closeShareDirect()">Cancel</button>
+      <button class="vbox-btn primary" style="flex:1" onclick="doShare()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        Share
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PIN OVERLAY ══ -->
+<div class="overlay" id="pin-ov">
+  <div class="pin-box">
+    <div class="pin-box-icon">🔐</div>
+    <div class="pin-box-title" id="pin-title">Private Space</div>
+    <div class="pin-box-sub" id="pin-sub">Enter your 4-digit PIN to access your private space</div>
+
+    <div class="pin-input-row">
+      <input class="pin-digit" id="pd0" type="password" maxlength="1" inputmode="numeric" pattern="[0-9]*" oninput="pinDigit(0)">
+      <input class="pin-digit" id="pd1" type="password" maxlength="1" inputmode="numeric" pattern="[0-9]*" oninput="pinDigit(1)">
+      <input class="pin-digit" id="pd2" type="password" maxlength="1" inputmode="numeric" pattern="[0-9]*" oninput="pinDigit(2)">
+      <input class="pin-digit" id="pd3" type="password" maxlength="1" inputmode="numeric" pattern="[0-9]*" oninput="pinDigit(3)">
+    </div>
+
+    <div class="pin-error" id="pin-err"></div>
+
+    <button class="btn-pin-confirm" onclick="confirmPin()">Unlock Private Space</button>
+    <button class="btn-pin-cancel" onclick="cancelPin()">Cancel</button>
+  </div>
+</div>
+
+<!-- ══ TOASTS ══ -->
+<div class="toast-stack" id="toast-stack"></div>
+
+<script>
+/* ═══════════════════════════════
+   GLOBALS
+═══════════════════════════════ */
+const BASE = "http://localhost:5000";
+const STORAGE_CAP = 100 * 1024 * 1024; // 100 MB
+let token = localStorage.getItem("kv_token");
+let currentUser = localStorage.getItem("kv_user") || "";
+
+// Private Space state
+let psUnlocked = false;
+let psPin = localStorage.getItem("kv_ps_pin_" + currentUser) || null;
+let pinPurpose = null; // 'enter' | 'set'
+let pinCallback = null;
+
+// Vault state
+let allFiles = [];
+let vaultFilter = "all";
+let vaultSearch = "";
+let vaultView = "grid";
+let searchTimer = null;
+
+// Share state
+let shareFileId = null;
+
+/* ═══════════════════════════════
+   TOAST
+═══════════════════════════════ */
+function toast(msg, type = "info") {
+  const icons = { ok:"✓", err:"✕", info:"·" };
+  const el = document.createElement("div");
+  el.className = `toast-chip ${type}`;
+  el.innerHTML = `<span class="toast-icon">${icons[type]||"·"}</span><span>${msg}</span>`;
+  document.getElementById("toast-stack").appendChild(el);
+  const dismiss = () => {
+    el.classList.add("dismissing");
+    setTimeout(() => el.remove(), 280);
+  };
+  el.addEventListener("click", dismiss);
+  setTimeout(dismiss, 3400);
+}
+
+/* ═══════════════════════════════
+   CENTRALIZED API LAYER
+═══════════════════════════════ */
+async function api(path, opts = {}) {
+  const url = BASE + path;
+  const headers = { ...ah(), ...(opts.headers || {}) };
+  if (opts.json !== undefined) {
+    headers["Content-Type"] = "application/json";
+    opts.body = JSON.stringify(opts.json);
+    delete opts.json;
+  }
+  let res;
+  try {
+    res = await fetch(url, { ...opts, headers });
+  } catch (e) {
+    toast("Network error — check your connection", "err");
+    throw e;
+  }
+  if (res.status === 401) {
+    toast("Session expired — please sign in again", "err");
+    setTimeout(doLogout, 1200);
+    throw new Error("Unauthorized");
+  }
+  if (!res.ok) {
+    let errMsg = "Something went wrong";
+    try { const d = await res.clone().json(); errMsg = d.error || errMsg; } catch {}
+    toast(errMsg, "err");
+    throw new Error(errMsg);
+  }
+  return res;
+}
+
+/* ═══════════════════════════════
+   SKELETON GENERATORS
+═══════════════════════════════ */
+function skelDashHero() {
+  return `
+    <div class="dash-hero">
+      ${[0,1,2].map(() => `
+        <div class="skel-stat-tile">
+          <div class="skel s-top"></div>
+          <div class="skel s-num"></div>
+          <div class="skel s-foot"></div>
+        </div>`).join("")}
+      <div class="skel-storage-tile">
+        <div class="skel s-top"></div>
+        <div class="skel s-arc"></div>
+        <div class="skel s-row"></div>
+      </div>
+    </div>
+    <div class="dash-body">
+      <div class="dash-card">
+        <div class="dc-head" style="border-bottom:1px solid var(--line);padding:18px 22px">
+          <div class="skel" style="height:16px;width:120px;border-radius:6px"></div>
+        </div>
+        ${[0,1,2,3,4].map(() => `
+          <div class="skel-recent-row">
+            <div class="skel s-thumb"></div>
+            <div><div class="skel s-name"></div><div class="skel s-meta"></div></div>
+            <div class="skel s-badge"></div>
+          </div>`).join("")}
+      </div>
+      <div class="sec-panel">
+        <div class="sec-head" style="padding:18px 22px;border-bottom:1px solid var(--line)">
+          <div class="skel" style="height:16px;width:120px;border-radius:6px"></div>
+        </div>
+        ${[0,1,2,3,4,5].map(() => `
+          <div style="display:flex;align-items:center;gap:12px;padding:13px 22px;border-bottom:1px solid var(--line)">
+            <div class="skel" style="width:7px;height:7px;border-radius:50%"></div>
+            <div class="skel" style="flex:1;height:12px"></div>
+            <div class="skel" style="width:44px;height:11px"></div>
+          </div>`).join("")}
+      </div>
+    </div>`;
+}
+
+function skelFileGrid(count = 6) {
+  return `<div class="file-grid-wrap">${[...Array(count)].map(() => `
+    <div class="skel-file-card">
+      <div class="skel s-thumb"></div>
+      <div class="s-body">
+        <div class="skel s-name"></div>
+        <div class="skel s-meta"></div>
+      </div>
+      <div class="s-btns">
+        <div class="skel s-btn"></div>
+        <div class="skel s-btn"></div>
+      </div>
+    </div>`).join("")}</div>`;
+}
+
+function skelDropboxCards(count = 4) {
+  return `
+    <div class="dropbox-hero" style="pointer-events:none">
+      <div class="dropbox-hero-pattern"></div>
+      <div class="dbh-left" style="position:relative;z-index:1">
+        <div class="skel" style="height:11px;width:60px;margin-bottom:10px;background:rgba(255,255,255,0.1)"></div>
+        <div class="skel" style="height:26px;width:200px;margin-bottom:10px;background:rgba(255,255,255,0.1)"></div>
+        <div class="skel" style="height:12px;width:240px;background:rgba(255,255,255,0.08)"></div>
+      </div>
+      <div class="dbh-right" style="position:relative;z-index:1">
+        <div class="skel" style="height:48px;width:48px;border-radius:8px;background:rgba(184,151,90,0.2)"></div>
+      </div>
+    </div>
+    <div class="dropbox-grid">${[...Array(count)].map(() => `
+      <div class="skel-dropbox-card">
+        <div class="skel s-thumb"></div>
+        <div class="s-body">
+          <div class="skel s-name"></div>
+          <div class="skel s-meta"></div>
+          <div class="s-btns">
+            <div class="skel s-btn"></div>
+            <div class="skel s-btn"></div>
+          </div>
+        </div>
+      </div>`).join("")}
+    </div>`;
+}
+
+function skelAuditRows(count = 8) {
+  return `
+    <div class="ph"><div class="skel" style="height:26px;width:140px;margin-bottom:8px"></div><div class="skel" style="height:12px;width:200px"></div></div>
+    <div class="audit-wrap">
+      <div class="audit-row head"><div>Timestamp</div><div>Action</div><div>File ID</div><div>IP Address</div></div>
+      ${[...Array(count)].map(() => `
+        <div class="skel-audit-row">
+          <div class="skel s-cell" style="width:130px"></div>
+          <div class="skel s-cell" style="width:72px;border-radius:20px"></div>
+          <div class="skel s-cell" style="width:85%"></div>
+          <div class="skel s-cell" style="width:90px"></div>
+        </div>`).join("")}
+    </div>`;
+}
+
+/* ═══════════════════════════════
+   AUTH
+═══════════════════════════════ */
+function switchTab(t) {
+  document.getElementById("tab-in").classList.toggle("on", t === "in");
+  document.getElementById("tab-up").classList.toggle("on", t === "up");
+  document.getElementById("form-in").style.display = t === "in" ? "block" : "none";
+  document.getElementById("form-up").style.display = t === "up" ? "block" : "none";
+}
+
+async function doLogin() {
+  const u = document.getElementById("in-user").value.trim();
+  const p = document.getElementById("in-pass").value;
+  if (!u || !p) return toast("Please fill in all fields", "err");
+  try {
+    const r = await fetch(BASE + "/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username: u, password: p })
+    });
+    const d = await r.json();
+    if (!r.ok) return toast(d.error || "Login failed", "err");
+    token = d.token;
+    currentUser = d.username;
+    localStorage.setItem("kv_token", token);
+    localStorage.setItem("kv_user", currentUser);
+    psPin = localStorage.getItem("kv_ps_pin_" + currentUser) || null;
+    psUnlocked = false;
+    initApp();
+  } catch { toast("Cannot connect to server", "err"); }
+}
+
+async function doRegister() {
+  const u = document.getElementById("up-user").value.trim();
+  const p = document.getElementById("up-pass").value;
+  if (!u || !p) return toast("Please fill in all fields", "err");
+  try {
+    const r = await fetch(BASE + "/auth/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username: u, password: p })
+    });
+    const d = await r.json();
+    if (!r.ok) return toast(d.error || "Registration failed", "err");
+    toast("Account created! Please sign in.", "ok");
+    switchTab("in");
+    document.getElementById("in-user").value = u;
+  } catch { toast("Cannot connect to server", "err"); }
+}
+
+function doLogout() {
+  psUnlocked = false;
+  localStorage.removeItem("kv_token");
+  localStorage.removeItem("kv_user");
+  location.reload();
+}
+
+function initApp() {
+  document.getElementById("auth-screen").style.display = "none";
+  document.getElementById("app-screen").classList.add("on");
+  document.getElementById("tb-uname").textContent = currentUser;
+  document.getElementById("tb-avatar").textContent = currentUser[0].toUpperCase();
+  go("dash", document.getElementById("nb-dash"));
+}
+
+/* ═══════════════════════════════
+   NAVIGATION
+═══════════════════════════════ */
+function go(page, btn) {
+  document.querySelectorAll(".tb-nav-btn").forEach(b => b.classList.remove("on"));
+  if (btn) btn.classList.add("on");
+  const mc = document.getElementById("mc");
+  mc.classList.remove("view-enter");
+  void mc.offsetWidth; // reflow
+  mc.classList.add("view-enter");
+  const pages = { dash: renderDash, upload: renderUpload, vault: renderVault, dropbox: renderDropbox, audit: renderAudit };
+  if (pages[page]) pages[page]();
+}
+
+/* ═══════════════════════════════
+   UTILS
+═══════════════════════════════ */
+const ah = () => ({ Authorization: "Bearer " + token });
+const ext = name => (!name || !name.includes(".")) ? "file" : name.split(".").pop().toLowerCase();
+const extCls = e => ({ pdf:"ext-pdf", jpg:"ext-jpg", jpeg:"ext-jpeg", png:"ext-png", mp4:"ext-mp4", mp3:"ext-mp3", txt:"ext-txt" }[e] || "ext-def");
+const thCls  = e => ({ pdf:"th-pdf", jpg:"th-jpg", jpeg:"th-jpeg", png:"th-png", mp4:"th-mp4", mp3:"th-mp3", txt:"th-txt" }[e] || "th-def");
+const emoji  = e => ({ pdf:"📄", jpg:"🖼️", jpeg:"🖼️", png:"🖼️", mp4:"🎬", mp3:"🎵", txt:"📝" }[e] || "📁");
+const fmtSz  = b => b < 1024 ? b + " B" : b < 1048576 ? (b/1024).toFixed(1) + " KB" : (b/1048576).toFixed(2) + " MB";
+const fmtDt  = s => new Date(s).toLocaleDateString("en-IN", { day:"numeric", month:"short", year:"numeric" });
+const rbadge = lvl => `<span class="rf-badge rb-${lvl === "private" ? "priv" : lvl === "public" ? "pub" : "prot"}">${lvl}</span>`;
+
+const cat = e => {
+  if (["jpg","jpeg","png"].includes(e)) return "images";
+  if (e === "pdf") return "documents";
+  if (e === "mp4") return "video";
+  if (e === "mp3") return "audio";
+  if (e === "txt") return "text";
+  return "other";
+};
+
+const catLabel = c => ({ images:"🖼 Images", documents:"📄 Documents", video:"🎬 Video", audio:"🎵 Audio", text:"📝 Text", other:"📁 Other" }[c] || c);
+
+async function getFiles() {
+  const r = await api("/storage/files");
+  return (await r.json()).files || [];
+}
+
+async function getLogs() {
+  const r = await api("/audit/logs");
+  return (await r.json()).logs || [];
+}
+
+/* ═══════════════════════════════
+   PRIVATE SPACE PIN
+═══════════════════════════════ */
+function updatePsIndicator() {
+  document.getElementById("ps-indicator").style.display = psUnlocked ? "flex" : "none";
+}
+
+function openPinModal(purpose, subtitle, cb) {
+  pinPurpose = purpose;
+  pinCallback = cb;
+  document.getElementById("pin-title").textContent = purpose === "set" ? "Create Private Space PIN" : "Unlock Private Space";
+  document.getElementById("pin-sub").textContent = subtitle;
+  document.getElementById("pin-err").textContent = "";
+  [0,1,2,3].forEach(i => {
+    const d = document.getElementById("pd" + i);
+    d.value = "";
+    d.classList.remove("filled");
+  });
+  document.getElementById("pin-ov").classList.add("on");
+  setTimeout(() => document.getElementById("pd0").focus(), 100);
+}
+
+function pinDigit(idx) {
+  const el = document.getElementById("pd" + idx);
+  el.classList.toggle("filled", el.value.length > 0);
+  if (el.value.length === 1 && idx < 3) {
+    document.getElementById("pd" + (idx + 1)).focus();
+  }
+  if (idx === 3 && el.value.length === 1) {
+    setTimeout(confirmPin, 200);
+  }
+}
+
+function confirmPin() {
+  const pin = [0,1,2,3].map(i => document.getElementById("pd" + i).value).join("");
+  if (pin.length !== 4 || !/^\d{4}$/.test(pin)) {
+    document.getElementById("pin-err").textContent = "Enter all 4 digits";
+    return;
+  }
+
+  if (pinPurpose === "set") {
+    psPin = pin;
+    localStorage.setItem("kv_ps_pin_" + currentUser, pin);
+    psUnlocked = true;
+    updatePsIndicator();
+    document.getElementById("pin-ov").classList.remove("on");
+    toast("Private Space PIN created & unlocked!", "ok");
+    if (pinCallback) pinCallback();
+  } else {
+    if (pin !== psPin) {
+      document.getElementById("pin-err").textContent = "Incorrect PIN. Try again.";
+      [0,1,2,3].forEach(i => { document.getElementById("pd" + i).value = ""; document.getElementById("pd" + i).classList.remove("filled"); });
+      document.getElementById("pd0").focus();
+      return;
+    }
+    psUnlocked = true;
+    updatePsIndicator();
+    document.getElementById("pin-ov").classList.remove("on");
+    toast("Private Space unlocked", "ok");
+    if (pinCallback) pinCallback();
+  }
+}
+
+function cancelPin() {
+  document.getElementById("pin-ov").classList.remove("on");
+  pinCallback = null;
+}
+
+function exitPrivateSpace() {
+  psUnlocked = false;
+  updatePsIndicator();
+  toast("Private Space locked", "info");
+  // refresh current page
+  document.querySelector(".tb-nav-btn.on")?.click();
+}
+
+function requestPrivateSpace(cb) {
+  if (psUnlocked) { cb(); return; }
+  if (!psPin) {
+    openPinModal("set", "Create a 4-digit PIN to protect your private space. You'll need it every time.", cb);
+  } else {
+    openPinModal("enter", "Enter your PIN to view and download private files.", cb);
+  }
+}
+
+/* ═══════════════════════════════
+   DASHBOARD
+═══════════════════════════════ */
+async function renderDash() {
+  document.getElementById("mc").innerHTML = `<div class="rise-in">${skelDashHero()}</div>`;
+  let files;
+  try { files = await getFiles(); } catch { return; }
+  const mine = files.filter(f => f.is_mine);
+  const shared = files.filter(f => !f.is_mine);
+  const usedBytes = mine.reduce((a, f) => a + (f.file_size || 0), 0);
+  const pct = Math.min((usedBytes / STORAGE_CAP) * 100, 100);
+  const recent = [...mine].sort((a,b) => new Date(b.upload_time) - new Date(a.upload_time)).slice(0, 6);
+  const extGroups = {};
+  mine.forEach(f => { const e = cat(ext(f.original_name)); extGroups[e] = (extGroups[e] || 0) + 1; });
+  const topExt = Object.entries(extGroups).sort((a,b) => b[1]-a[1])[0];
+
+  // Arc SVG calc
+  const R = 38, CX = 50, CY = 50;
+  const circumference = Math.PI * R; // half circle
+  const offset = circumference - (pct / 100) * circumference;
+
+  document.getElementById("mc").innerHTML = `
+    <div class="rise-in">
+      <div class="ph">
+        <div class="ph-title">Good day, ${currentUser}.</div>
+        <div class="ph-sub">Your vault is active and all files are securely encrypted.</div>
+      </div>
+
+      <div class="dash-hero">
+        <div class="stat-tile" style="animation-delay:.04s">
+          <div class="stat-tile-accent"></div>
+          <div class="stat-label-top">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
+            Files Stored
+          </div>
+          <div class="stat-num">${mine.length} <span class="stat-num-unit">files</span></div>
+          <div class="stat-foot">${topExt ? topExt[0] + " most common" : "No files yet"}</div>
+        </div>
+
+        <div class="stat-tile" style="animation-delay:.08s">
+          <div class="stat-tile-accent" style="background:#22c55e"></div>
+          <div class="stat-label-top">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+            Shared With Me
+          </div>
+          <div class="stat-num">${shared.length} <span class="stat-num-unit">files</span></div>
+          <div class="stat-foot">In your dropbox</div>
+        </div>
+
+        <div class="stat-tile" style="animation-delay:.12s">
+          <div class="stat-tile-accent" style="background:#2563eb"></div>
+          <div class="stat-label-top">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+            File Types
+          </div>
+          <div class="stat-num">${Object.keys(extGroups).length} <span class="stat-num-unit">types</span></div>
+          <div class="stat-foot">${mine.filter(f => f.access_level === "public").length} public · ${mine.filter(f => f.access_level === "private").length} private</div>
+        </div>
+
+        <div class="storage-tile" style="animation-delay:.16s">
+          <div class="storage-tile-top">Storage Usage</div>
+          <div class="storage-gauge-wrap">
+            <svg class="storage-arc-svg" width="90" height="52" viewBox="0 0 100 58">
+              <path class="storage-arc-bg"
+                d="M 12 50 A ${R} ${R} 0 0 1 88 50"
+                stroke-dasharray="${circumference}" stroke-dashoffset="0"/>
+              <path class="storage-arc-fill" id="arc-fill"
+                d="M 12 50 A ${R} ${R} 0 0 1 88 50"
+                stroke-dasharray="${circumference}" stroke-dashoffset="${offset}"/>
+              <text x="50" y="54" text-anchor="middle" fill="rgba(255,255,255,0.5)" font-size="9" font-family="JetBrains Mono">${pct.toFixed(0)}%</text>
+            </svg>
+            <div class="storage-nums">
+              <div class="storage-used">${fmtSz(usedBytes)} <span>used</span></div>
+              <div class="storage-total">of 100 MB vault</div>
+            </div>
+          </div>
+          <div class="storage-bar-outer">
+            <div class="storage-bar-inner" id="stor-bar" style="width:0%"></div>
+          </div>
+          <div class="storage-pct">${(STORAGE_CAP - usedBytes) > 0 ? fmtSz(STORAGE_CAP - usedBytes) + " remaining" : "Vault full"}</div>
+        </div>
+      </div>
+
+      <div class="dash-body">
+        <div class="dash-card">
+          <div class="dc-head">
+            <div class="dc-title">Recent Activity</div>
+            <button class="dc-action" onclick="go('vault',document.getElementById('nb-vault'))">View vault →</button>
+          </div>
+          ${recent.length === 0
+            ? `<div class="empty-state" style="padding:40px"><div class="empty-ico">📂</div><div class="empty-title">No files yet</div><div class="empty-sub">Upload your first file to get started</div></div>`
+            : recent.map(f => {
+                const e = ext(f.original_name);
+                return `
+                  <div class="rf-row" onclick="openViewer('${f.file_id}','${f.original_name.replace(/'/g,"\\'")}','${f.access_level}',${f.is_mine})">
+                    <div class="rf-ext ${extCls(e)}">${emoji(e)}</div>
+                    <div class="rf-info">
+                      <div class="rf-name">${f.original_name}</div>
+                      <div class="rf-meta">${fmtDt(f.upload_time)} &middot; ${fmtSz(f.file_size)}</div>
+                    </div>
+                    ${rbadge(f.access_level)}
+                  </div>`;
+              }).join("")
+          }
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:18px">
+          <div class="sec-panel">
+            <div class="sec-head">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><path d="M12 2L4 6v6c0 5.25 3.5 10.15 8 11.35C16.5 22.15 20 17.25 20 12V6L12 2z"/></svg>
+              <div class="sec-head-title">Security Status</div>
+            </div>
+            <div class="sec-item"><div class="sec-dot sec-green"></div><span class="sec-text">AES-256-GCM Encryption</span><span class="sec-status">Active</span></div>
+            <div class="sec-item"><div class="sec-dot sec-green"></div><span class="sec-text">JWT Authentication</span><span class="sec-status">Active</span></div>
+            <div class="sec-item"><div class="sec-dot sec-green"></div><span class="sec-text">KEK Key Wrapping</span><span class="sec-status">Active</span></div>
+            <div class="sec-item"><div class="sec-dot sec-green"></div><span class="sec-text">SHA-256 Integrity</span><span class="sec-status">Verified</span></div>
+            <div class="sec-item"><div class="sec-dot sec-gold"></div><span class="sec-text">Input Validation</span><span class="sec-status gold">Active</span></div>
+            <div class="sec-item"><div class="sec-dot sec-gold"></div><span class="sec-text">Audit Logging</span><span class="sec-status gold">Active</span></div>
+          </div>
+
+          <div class="sec-panel">
+            <div class="sec-head">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+              <div class="sec-head-title">By File Type</div>
+            </div>
+            ${Object.keys(extGroups).length === 0
+              ? `<div style="padding:16px 22px;font-size:13px;color:var(--steel-lt)">No files stored</div>`
+              : Object.entries(extGroups).map(([c, n]) => `
+                <div class="type-row">
+                  <span class="type-icon">${{images:"🖼️",documents:"📄",video:"🎬",audio:"🎵",text:"📝",other:"📁"}[c]||"📁"}</span>
+                  <span class="type-label">${c.charAt(0).toUpperCase()+c.slice(1)}</span>
+                  <span class="type-count">${n}</span>
+                  <div class="type-bar-wrap"><div class="type-bar-fill" style="width:${(n/mine.length*100).toFixed(0)}%"></div></div>
+                </div>`).join("")
+            }
+          </div>
+        </div>
+      </div>
+    </div>`;
+
+  // Animate storage bar after render
+  requestAnimationFrame(() => {
+    const el = document.getElementById("stor-bar");
+    if (el) el.style.width = pct.toFixed(1) + "%";
+  });
+}
+
+/* ═══════════════════════════════
+   UPLOAD
+═══════════════════════════════ */
+let selAccess = "private";
+let selFile = null;
+
+function renderUpload() {
+  selFile = null; selAccess = "private";
+  document.getElementById("mc").innerHTML = `
+    <div class="rise-in">
+      <div class="ph">
+        <div class="ph-title">Upload File</div>
+        <div class="ph-sub">Files are encrypted with AES-256 before storage. Max size: 5 MB.</div>
+      </div>
+
+      <div class="upload-wrap">
+        <div class="drop-zone" id="dz" onclick="document.getElementById('file-hidden').click()"
+             ondragover="dzDragOver(event)" ondragleave="dzDragLeave(event)" ondrop="dzDrop(event)">
+          <div class="dz-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.5">
+              <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+              <polyline points="17 8 12 3 7 8"/>
+              <line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+          </div>
+          <div class="dz-title">Drop your file here</div>
+          <div class="dz-hint">or click to browse files</div>
+          <div class="dz-types">JPG · PNG · PDF · TXT · MP3 · MP4 &nbsp;·&nbsp; Max 5 MB per file</div>
+        </div>
+        <input type="file" id="file-hidden" accept=".jpg,.jpeg,.png,.pdf,.txt,.mp3,.mp4" onchange="onFileSel(event)">
+
+        <div id="file-preview-area"></div>
+
+        <div class="upload-card" style="margin-top:16px">
+          <div class="upload-card-title">Access Level</div>
+          <div class="access-grid">
+            <div class="acc-opt on" id="aopt-private" onclick="setAcc('private')">
+              <div class="acc-opt-icon">🔒</div>
+              <div class="acc-opt-name">Private</div>
+              <div class="acc-opt-desc">Only you (via Private Space PIN)</div>
+            </div>
+            <div class="acc-opt" id="aopt-protected" onclick="setAcc('protected')">
+              <div class="acc-opt-icon">🛡️</div>
+              <div class="acc-opt-name">Protected</div>
+              <div class="acc-opt-desc">Shareable — view only</div>
+            </div>
+            <div class="acc-opt" id="aopt-public" onclick="setAcc('public')">
+              <div class="acc-opt-icon">🌐</div>
+              <div class="acc-opt-name">Public</div>
+              <div class="acc-opt-desc">All users, full access</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="progress-bar-outer" id="up-prog-outer">
+          <div class="progress-bar-inner" id="up-prog"></div>
+        </div>
+
+        <button class="btn-upload" id="up-btn" onclick="doUpload()" disabled>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          Select a file to upload
+        </button>
+      </div>
+    </div>`;
+}
+
+function dzDragOver(e) { e.preventDefault(); document.getElementById("dz").classList.add("drag"); }
+function dzDragLeave() { document.getElementById("dz").classList.remove("drag"); }
+function dzDrop(e) { e.preventDefault(); document.getElementById("dz").classList.remove("drag"); if (e.dataTransfer.files[0]) setFile(e.dataTransfer.files[0]); }
+function onFileSel(e) { if (e.target.files[0]) setFile(e.target.files[0]); }
+
+function setFile(f) {
+  selFile = f;
+  const e = ext(f.name);
+  document.getElementById("file-preview-area").innerHTML = `
+    <div class="file-preview-strip">
+      <div class="fps-ext rf-ext ${extCls(e)}">${emoji(e)}</div>
+      <div>
+        <div class="fps-name">${f.name}</div>
+        <div class="fps-size">${fmtSz(f.size)}</div>
+      </div>
+    </div>`;
+  const btn = document.getElementById("up-btn");
+  btn.disabled = false;
+  btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg> Encrypt & Upload`;
+}
+
+function setAcc(lvl) {
+  selAccess = lvl;
+  ["private","protected","public"].forEach(l => document.getElementById("aopt-" + l)?.classList.toggle("on", l === lvl));
+}
+
+async function doUpload() {
+  if (!selFile) return toast("Select a file first", "err");
+  const btn = document.getElementById("up-btn");
+  btn.disabled = true;
+  btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg> Encrypting…`;
+  const outer = document.getElementById("up-prog-outer");
+  const bar = document.getElementById("up-prog");
+  outer.style.display = "block";
+  bar.classList.add("uploading");
+  let p = 0;
+  const iv = setInterval(() => { p = Math.min(p + Math.random() * 12, 88); bar.style.width = p + "%"; }, 180);
+  try {
+    const fd = new FormData();
+    fd.append("file", selFile);
+    fd.append("access_level", selAccess);
+    const r = await fetch(BASE + "/file/upload", { method: "POST", headers: ah(), body: fd });
+    const d = await r.json();
+    clearInterval(iv);
+    if (!r.ok) {
+      toast(d.error || "Upload failed", "err");
+      bar.classList.remove("uploading");
+      outer.style.display = "none"; bar.style.width = "0";
+      btn.disabled = false;
+      btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg> Try Again`;
+      return;
+    }
+    // ✅ Success animation
+    bar.classList.remove("uploading");
+    bar.style.background = "linear-gradient(90deg, #22c55e, #16a34a)";
+    bar.style.width = "100%";
+    btn.innerHTML = `
+      <svg class="upload-success-ring" width="22" height="22" viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="12" r="10" stroke="#22c55e" stroke-width="2"/>
+        <path class="upload-success-check" d="M7 12l3.5 3.5L17 9" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      </svg>
+      Encrypted & Stored!`;
+    btn.style.background = "rgba(34,197,94,0.08)";
+    btn.style.border = "1.5px solid rgba(34,197,94,0.3)";
+    btn.style.color = "#16a34a";
+    toast("File encrypted and stored securely!", "ok");
+    selFile = null;
+    setTimeout(() => {
+      bar.style.transition = "opacity 0.4s";
+      bar.style.opacity = "0";
+      setTimeout(() => {
+        outer.style.display = "none";
+        bar.style.width = "0";
+        bar.style.opacity = "1";
+        bar.style.background = "";
+        renderUpload();
+      }, 400);
+    }, 1600);
+  } catch {
+    clearInterval(iv);
+    bar.classList.remove("uploading");
+    outer.style.display = "none"; bar.style.width = "0";
+    btn.disabled = false;
+    btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg> Try Again`;
+  }
+}
+
+/* ═══════════════════════════════
+   VAULT
+═══════════════════════════════ */
+async function renderVault() {
+  document.getElementById("mc").innerHTML = `<div class="rise-in">
+    <div class="ph"><div class="skel" style="height:28px;width:180px;margin-bottom:8px;border-radius:8px"></div><div class="skel" style="height:13px;width:260px;border-radius:6px"></div></div>
+    <div class="vault-toolbar" style="margin-bottom:22px">
+      <div class="skel" style="height:38px;width:280px;border-radius:var(--r-sm)"></div>
+      <div style="display:flex;gap:6px">${[0,1,2].map(()=>`<div class="skel" style="height:34px;width:72px;border-radius:20px"></div>`).join("")}</div>
+    </div>
+    ${skelFileGrid(6)}
+  </div>`;
+  let files;
+  try { files = await getFiles(); } catch { return; }
+  allFiles = files;
+  vaultFilter = "all";
+  vaultSearch = "";
+  renderVaultContent();
+}
+
+function renderVaultContent() {
+  let filtered = [...allFiles];
+
+  // FILTER — fixed: "images" matches image category
+  if (vaultFilter !== "all") {
+    filtered = filtered.filter(f => cat(ext(f.original_name)) === vaultFilter);
+  }
+
+  // SEARCH — operates on already category-filtered set
+  if (vaultSearch.trim()) {
+    const q = vaultSearch.trim().toLowerCase();
+    filtered = filtered.filter(f => f.original_name.toLowerCase().includes(q));
+  }
+
+  // Group by category
+  const groups = {};
+  filtered.forEach(f => {
+    const c = cat(ext(f.original_name));
+    if (!groups[c]) groups[c] = [];
+    groups[c].push(f);
+  });
+
+  // Count per category from ALL files (for filter pills)
+  const catCounts = {};
+  allFiles.forEach(f => { const c = cat(ext(f.original_name)); catCounts[c] = (catCounts[c] || 0) + 1; });
+
+  const mc = document.getElementById("mc");
+  mc.innerHTML = `
+    <div class="rise-in">
+      ${psUnlocked ? `
+        <div class="ps-banner">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+          Private Space is unlocked — all files accessible
+          <button class="ps-exit-btn" onclick="exitPrivateSpace()">Lock</button>
+        </div>` : ""}
+
+      <div class="ph">
+        <div class="ph-title">My Vault</div>
+        <div class="ph-sub">${allFiles.length} encrypted files &nbsp;·&nbsp; AES-256-GCM</div>
+      </div>
+
+      <div class="vault-toolbar">
+        <div class="search-wrap">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input class="search-field" id="vs-field" placeholder="Search files…" value="${vaultSearch}" oninput="onVaultSearch(this.value)">
+        </div>
+
+        <div class="filter-pills">
+          <button class="filter-pill ${vaultFilter==='all'?'on':''}" onclick="setVaultFilter('all')">All (${allFiles.length})</button>
+          ${Object.entries(catCounts).map(([c,n]) =>
+            `<button class="filter-pill ${vaultFilter===c?'on':''}" onclick="setVaultFilter('${c}')">${catLabel(c)} (${n})</button>`
+          ).join("")}
+        </div>
+
+        <div class="view-switch">
+          <button class="vs-btn ${vaultView==='grid'?'on':''}" onclick="setVaultView('grid')" title="Grid">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+          </button>
+          <button class="vs-btn ${vaultView==='list'?'on':''}" onclick="setVaultView('list')" title="List">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+          </button>
+        </div>
+      </div>
+
+      ${filtered.length === 0
+        ? `<div class="empty-state"><div class="empty-ico">🗂️</div><div class="empty-title">No files found</div><div class="empty-sub">Try a different filter or search term</div></div>`
+        : Object.entries(groups).map(([c, files], i) => `
+          <div class="vault-sec fade-in" style="animation-delay:${i*0.06}s">
+            <div class="vault-sec-head">
+              <span class="vsec-label">${catLabel(c)}</span>
+              <span class="vsec-count">${files.length}</span>
+              <div class="vsec-line"></div>
+            </div>
+            ${vaultView === "grid" ? buildGrid(files) : buildList(files)}
+          </div>`
+        ).join("")
+      }
+    </div>`;
+}
+
+function onVaultSearch(val) {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => {
+    vaultSearch = val;
+    renderVaultContent();
+    // Re-focus search field
+    const sf = document.getElementById("vs-field");
+    if (sf) { sf.focus(); sf.setSelectionRange(sf.value.length, sf.value.length); }
+  }, 220);
+}
+
+function setVaultFilter(f) { vaultFilter = f; renderVaultContent(); }
+function setVaultView(v) { vaultView = v; renderVaultContent(); }
+
+function buildGrid(files) {
+  return `<div class="file-grid-wrap">${files.map(f => {
+    const e = ext(f.original_name);
+    const isPriv = f.access_level === "private";
+    const isProt = f.access_level === "protected";
+    const canDL = f.is_mine ? (isPriv ? psUnlocked : true) : (!isPriv && f.access_level === "public");
+    const canShare = f.is_mine && !isPriv;
+    return `
+      <div class="file-card">
+        <div class="fc-thumb ${thCls(e)}">
+          <span style="font-size:36px">${emoji(e)}</span>
+          ${isPriv && !psUnlocked ? `<div class="fc-lock-overlay"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" opacity="0.8"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>` : ""}
+        </div>
+        <div class="fc-body">
+          <div class="fc-name" title="${f.original_name}">${f.original_name}</div>
+          <div class="fc-meta"><span>${fmtSz(f.file_size)}</span>${rbadge(f.access_level)}</div>
+          <div style="font-size:11px;color:var(--steel-lt);margin-top:3px">${fmtDt(f.upload_time)}</div>
+        </div>
+        <div class="fc-actions">
+          <button class="fc-btn" onclick="openViewer('${f.file_id}','${f.original_name.replace(/'/g,"\\'")}','${f.access_level}',${f.is_mine})">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            View
+          </button>
+          ${canDL ? `<button class="fc-btn amber" onclick="doDownload('${f.file_id}','${f.original_name.replace(/'/g,"\\'")}','${f.access_level}',${f.is_mine});event.stopPropagation()">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          </button>` : ""}
+          ${canShare ? `<button class="fc-btn" onclick="openShareModal('${f.file_id}','${f.original_name.replace(/'/g,"\\'")}','${f.access_level}');event.stopPropagation()">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          </button>` : ""}
+          ${f.is_mine ? `<button class="fc-btn red" onclick="doDelete('${f.file_id}');event.stopPropagation()">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>
+          </button>` : ""}
+        </div>
+      </div>`;
+  }).join("")}</div>`;
+}
+
+function buildList(files) {
+  return `
+    <div class="file-list-wrap">
+      <div class="fl-head"><div>Name</div><div>Size</div><div>Date</div><div>Access</div><div>Actions</div></div>
+      ${files.map(f => {
+        const e = ext(f.original_name);
+        const isPriv = f.access_level === "private";
+        const canDL = f.is_mine ? (isPriv ? psUnlocked : true) : (f.access_level === "public");
+        const canShare = f.is_mine && !isPriv;
+        return `
+          <div class="fl-row">
+            <div class="fl-name-cell">
+              <div class="rf-ext ${extCls(e)}" style="width:30px;height:30px;border-radius:8px;font-size:12px;flex-shrink:0">${emoji(e)}</div>
+              <span class="fl-name-text" title="${f.original_name}">${f.original_name}</span>
+            </div>
+            <div class="fl-cell">${fmtSz(f.file_size)}</div>
+            <div class="fl-cell">${fmtDt(f.upload_time)}</div>
+            <div>${rbadge(f.access_level)}</div>
+            <div class="fl-actions">
+              <button class="fl-btn" onclick="openViewer('${f.file_id}','${f.original_name.replace(/'/g,"\\'")}','${f.access_level}',${f.is_mine})" title="View">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+              ${canDL ? `<button class="fl-btn amber" onclick="doDownload('${f.file_id}','${f.original_name.replace(/'/g,"\\'")}','${f.access_level}',${f.is_mine})" title="Download">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              </button>` : ""}
+              ${canShare ? `<button class="fl-btn amber" onclick="openShareModal('${f.file_id}','${f.original_name.replace(/'/g,"\\'")}','${f.access_level}')">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+              </button>` : ""}
+              ${f.is_mine ? `<button class="fl-btn red" onclick="doDelete('${f.file_id}')">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>
+              </button>` : ""}
+            </div>
+          </div>`;
+      }).join("")}
+    </div>`;
+}
+
+/* ═══════════════════════════════
+   VIEWER
+═══════════════════════════════ */
+async function openViewer(fid, name, access, isMine) {
+  const isPriv = access === "private";
+  const isProt = access === "protected";
+
+  // Private files: need private space
+  if (isPriv && !psUnlocked) {
+    requestPrivateSpace(() => openViewer(fid, name, access, isMine));
+    return;
+  }
+
+  const e = ext(name);
+  const canDL = isMine ? (isPriv ? psUnlocked : true) : (access === "public");
+
+  document.getElementById("vb-ext-badge").className = `rf-ext ${extCls(e)}`;
+  document.getElementById("vb-ext-badge").textContent = emoji(e);
+  document.getElementById("vb-title").textContent = name;
+  document.getElementById("vb-body").innerHTML = `<div class="spinner"></div>`;
+  document.getElementById("vb-foot").innerHTML = `
+    ${canDL ? `<button class="vbox-btn" onclick="doDownload('${fid}','${name.replace(/'/g,"\\'")}','${access}',${isMine})">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Download
+    </button>` : ""}
+    <button class="vbox-btn primary" onclick="closeViewerDirect()">Close</button>`;
+  document.getElementById("viewer-ov").classList.add("on");
+
+  try {
+    const r = await fetch(BASE + "/file/download/" + fid + "?mode=view", { headers: ah() });
+    if (!r.ok) { document.getElementById("vb-body").innerHTML = `<div style="color:var(--steel);text-align:center">Preview unavailable</div>`; return; }
+    const blob = await r.blob();
+    const url = URL.createObjectURL(blob);
+    const type = blob.type;
+    let html = "";
+    if (type.startsWith("image/")) html = `<img src="${url}">`;
+    else if (type === "application/pdf") html = `<iframe src="${url}"></iframe>`;
+    else if (type.startsWith("video/")) html = `<video src="${url}" controls></video>`;
+    else if (type.startsWith("audio/")) html = `<div style="text-align:center;padding:48px"><div style="font-size:72px;margin-bottom:24px">🎵</div><audio src="${url}" controls style="width:100%;max-width:400px"></audio></div>`;
+    else if (type.startsWith("text/")) {
+      const text = await (await fetch(url)).text();
+      html = `<pre style="font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--ink);white-space:pre-wrap;padding:24px;background:var(--mist);border-radius:12px;width:100%;text-align:left;max-height:500px;overflow:auto;border:1px solid var(--line)">${text.replace(/</g,"&lt;").replace(/>/g,"&gt;")}</pre>`;
+    } else html = `<div style="text-align:center;padding:60px"><div style="font-size:64px;margin-bottom:16px">${emoji(e)}</div><p style="color:var(--steel)">No preview available</p></div>`;
+    document.getElementById("vb-body").innerHTML = html;
+  } catch { document.getElementById("vb-body").innerHTML = `<div style="color:var(--steel);text-align:center">Preview failed</div>`; }
+}
+
+function closeViewer(e) { if (e.target === document.getElementById("viewer-ov")) closeViewerDirect(); }
+function closeViewerDirect() { document.getElementById("viewer-ov").classList.remove("on"); document.getElementById("vb-body").innerHTML = ""; }
+
+/* ═══════════════════════════════
+   DOWNLOAD
+═══════════════════════════════ */
+async function doDownload(fid, name, access, isMine) {
+  const isPriv = access === "private";
+  const isProt = access === "protected";
+
+  // Private: need private space
+  if (isPriv && !psUnlocked) {
+    requestPrivateSpace(() => doDownload(fid, name, access, isMine));
+    return;
+  }
+
+  // Protected + not owner: no download
+  if (isProt && !isMine) {
+    toast("Protected files can only be downloaded by the owner", "err");
+    return;
+  }
+
+  try {
+    const r = await fetch(BASE + "/file/download/" + fid + "?mode=download", { headers: ah() });
+    if (!r.ok) { toast("Download not allowed", "err"); return; }
+    const blob = await r.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = name; a.click();
+    toast("Downloading…", "ok");
+  } catch { toast("Download failed", "err"); }
+}
+
+/* ═══════════════════════════════
+   DELETE
+═══════════════════════════════ */
+async function doDelete(fid) {
+  if (!confirm("Permanently delete this file? This cannot be undone.")) return;
+  try {
+    await api("/storage/delete/" + fid, { method: "DELETE" });
+    toast("File deleted", "ok");
+    allFiles = allFiles.filter(f => f.file_id !== fid);
+    renderVaultContent();
+  } catch {}
+}
+
+/* ═══════════════════════════════
+   SHARE
+═══════════════════════════════ */
+function openShareModal(fid, name, accessLevel) {
+  shareFileId = fid;
+  document.getElementById("sh-filename").textContent = name;
+  document.getElementById("sh-user").value = "";
+  document.getElementById("sh-msg").value = "";
+  // Show access level badge
+  const lvlLabels = { public: "🌐 Public — full access", protected: "🛡️ Protected — view only" };
+  document.getElementById("sh-access-badge").className = `share-access-badge ${accessLevel}`;
+  document.getElementById("sh-access-badge").textContent = lvlLabels[accessLevel] || accessLevel;
+  document.getElementById("share-ov").classList.add("on");
+}
+
+function closeShareOv(e) { if (e.target === document.getElementById("share-ov")) closeShareDirect(); }
+function closeShareDirect() { document.getElementById("share-ov").classList.remove("on"); }
+
+async function doShare() {
+  const u = document.getElementById("sh-user").value.trim();
+  const msg = document.getElementById("sh-msg").value.trim();
+  if (!u) return toast("Enter a username to share with", "err");
+  try {
+    await api("/storage/share/" + shareFileId, {
+      method: "POST",
+      json: { username: u, message: msg }
+    });
+    toast(`Shared with ${u}!`, "ok");
+    closeShareDirect();
+  } catch {}
+}
+
+/* ═══════════════════════════════
+   DROPBOX
+═══════════════════════════════ */
+async function renderDropbox() {
+  document.getElementById("mc").innerHTML = `<div class="rise-in">${skelDropboxCards(4)}</div>`;
+  let dropbox;
+  try {
+    const r = await api("/storage/dropbox");
+    dropbox = (await r.json()).dropbox || [];
+  } catch { return; }
+  const items = dropbox;
+
+    if (items.length === 0) {
+      document.getElementById("mc").innerHTML = `
+        <div class="rise-in">
+          <div class="dropbox-hero">
+            <div class="dropbox-hero-pattern"></div>
+            <div class="dbh-left">
+              <div class="dbh-label">Dropbox</div>
+              <div class="dbh-title">Files Shared With You</div>
+              <div class="dbh-sub">When someone shares a file with you, it appears here.</div>
+            </div>
+            <div class="dbh-right">
+              <div class="dbh-count">0</div>
+              <div class="dbh-count-label">files waiting</div>
+            </div>
+          </div>
+          <div class="empty-state">
+            <div class="empty-ico">📬</div>
+            <div class="empty-title">Your dropbox is empty</div>
+            <div class="empty-sub">Ask a colleague to share a file with you</div>
+          </div>
+        </div>`;
+      return;
+    }
+
+    document.getElementById("mc").innerHTML = `
+      <div class="rise-in">
+        <div class="dropbox-hero">
+          <div class="dropbox-hero-pattern"></div>
+          <div class="dbh-left">
+            <div class="dbh-label">Dropbox</div>
+            <div class="dbh-title">Files Shared With You</div>
+            <div class="dbh-sub">Files sent to you by other KryptVault users.</div>
+          </div>
+          <div class="dbh-right">
+            <div class="dbh-count">${items.length}</div>
+            <div class="dbh-count-label">file${items.length !== 1 ? "s" : ""} received</div>
+          </div>
+        </div>
+
+        <div class="dropbox-grid">
+          ${items.map((f, i) => {
+            const e = ext(f.original_name);
+            const canDL = f.access_level === "public";
+            const canShare = canDL; // can only re-share if public
+            return `
+              <div class="dropbox-card fade-in" style="animation-delay:${i*0.05}s">
+                <div class="dbc-thumb ${thCls(e)}">
+                  <span style="font-size:40px">${emoji(e)}</span>
+                  <div class="dbc-from-badge">from ${f.owner}</div>
+                </div>
+                <div class="dbc-body">
+                  <div class="dbc-name">${f.original_name}</div>
+                  ${f.message ? `<div class="dbc-msg">"${f.message}"</div>` : ""}
+                  <div class="dbc-meta">
+                    ${rbadge(f.access_level)}
+                    ${!canDL ? `<span style="font-size:11px;color:var(--steel)">View only</span>` : ""}
+                  </div>
+                </div>
+                <div class="dbc-actions">
+                  <button class="dbc-btn" onclick="openViewer('${f.file_id}','${f.original_name.replace(/'/g,"\\'")}','${f.access_level}',false)">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    View
+                  </button>
+                  ${canDL ? `<button class="dbc-btn primary" onclick="doDownload('${f.file_id}','${f.original_name.replace(/'/g,"\\'")}','${f.access_level}',false)">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    Download
+                  </button>` : `<button class="dbc-btn" disabled style="opacity:0.4;cursor:not-allowed">Protected</button>`}
+                </div>
+              </div>`;
+          }).join("")}
+        </div>
+      </div>`;
+}
+
+/* ═══════════════════════════════
+   AUDIT
+═══════════════════════════════ */
+async function renderAudit() {
+  document.getElementById("mc").innerHTML = `<div class="rise-in">${skelAuditRows(8)}</div>`;
+  let logs;
+  try { logs = await getLogs(); } catch { return; }
+
+  const abadge = a => {
+    const map = { UPLOAD:"ab-upload", DOWNLOAD:"ab-download", DELETE:"ab-delete", VIEW:"ab-view" };
+    const ico  = { UPLOAD:"↑", DOWNLOAD:"↓", DELETE:"✕", VIEW:"◉" };
+    return `<span class="audit-badge ${map[a]||'ab-view'}">${ico[a]||"·"} ${a}</span>`;
+  };
+
+  document.getElementById("mc").innerHTML = `
+    <div class="rise-in">
+      <div class="ph">
+        <div class="ph-title">Audit Log</div>
+        <div class="ph-sub">Your last ${logs.length} recorded events</div>
+      </div>
+      ${logs.length === 0
+        ? `<div class="empty-state"><div class="empty-ico">📋</div><div class="empty-title">No events yet</div></div>`
+        : `<div class="audit-wrap">
+            <div class="audit-row head"><div>Timestamp</div><div>Action</div><div>File ID</div><div>IP Address</div></div>
+            ${logs.map(l => `
+              <div class="audit-row">
+                <div class="audit-ts">${new Date(l.timestamp).toLocaleString("en-IN", {day:"2-digit",month:"short",year:"2-digit",hour:"2-digit",minute:"2-digit"})}</div>
+                <div>${abadge(l.action)}</div>
+                <div class="audit-fid" title="${l.file_id}">${l.file_id || "—"}</div>
+                <div class="audit-ip">${l.ip_address}</div>
+              </div>`).join("")}
+          </div>`
+      }
+    </div>`;
+}
+
+/* ═══════════════════════════════
+   KEYBOARD
+═══════════════════════════════ */
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape") {
+    closeViewerDirect();
+    closeShareDirect();
+    document.getElementById("pin-ov").classList.remove("on");
+  }
+  if (e.key === "Enter" && document.getElementById("pin-ov").classList.contains("on")) {
+    confirmPin();
+  }
+});
+
+// PIN digit keyboard nav
+[0,1,2,3].forEach(i => {
+  document.getElementById("pd" + i)?.addEventListener("keydown", e => {
+    if (e.key === "Backspace" && document.getElementById("pd" + i).value === "" && i > 0) {
+      document.getElementById("pd" + (i-1)).focus();
+    }
+  });
+});
+
+/* ═══════════════════════════════
+   AUTH CHECK
+═══════════════════════════════ */
+if (token && currentUser) {
+  initApp();
+}
+
+// Enter key on auth forms
+document.addEventListener("keydown", e => {
+  if (e.key === "Enter") {
+    if (!document.getElementById("app-screen").classList.contains("on")) {
+      if (document.getElementById("form-in").style.display !== "none") doLogin();
+      else doRegister();
+    }
+  }
+});
+</script>
+</body>
+</html>

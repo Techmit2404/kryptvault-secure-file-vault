@@ -1,0 +1,56 @@
+# ================================
+# KryptVault Backend Requirements
+# ================================
+
+# Core Framework
+Flask==3.0.3
+Flask-Cors==4.0.1
+
+# Cryptography (AES-GCM encryption)
+cryptography==42.0.5
+
+# File Validation & Processing
+Pillow==10.3.0
+PyPDF2==3.0.1
+
+# MIME Type Detection (Magic Bytes)
+python-magic==0.4.27
+
+# ================================
+# OPTIONAL (Recommended Improvements)
+# ================================
+
+# Password hashing (upgrade from sha256)
+bcrypt==4.1.2
+
+# Environment variable support
+python-dotenv==1.0.1
+
+# Production server
+gunicorn==21.2.0
+
+
+# ================================
+# ⚙️ SETUP INSTRUCTIONS
+# ================================
+
+# 1. Install dependencies:
+#    pip install -r requirements.txt
+
+# 2. Set environment variable (IMPORTANT)
+#    Your app WILL NOT RUN without this (see key_manager.py)
+
+# Windows PowerShell:
+#    $env:KRYPT_VAULT_KEK="your_64_hex_key_here"
+
+# Linux / Mac:
+#    export KRYPT_VAULT_KEK="your_64_hex_key_here"
+
+# Example (valid 64 hex chars):
+#    0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+
+# 3. Run server:
+#    python app.py
+
+# 4. Server runs at:
+#    http://localhost:5000

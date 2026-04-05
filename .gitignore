@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.pyc
+
+# Environment
+.env
+
+# Temp / uploads
+temp_uploads/
+backend/secure_storage/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs / db
+*.log
+*.sqlite3
+
+# IDE
+.vscode/
+.idea/
