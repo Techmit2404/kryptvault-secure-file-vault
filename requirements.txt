@@ -10,7 +10,7 @@ Flask-Cors==4.0.1
 cryptography==42.0.5
 
 # File Validation & Processing
-Pillow==10.3.0
+Pillow
 PyPDF2==3.0.1
 
 # MIME Type Detection (Magic Bytes)
