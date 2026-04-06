@@ -117,8 +117,7 @@ def validate_file(file, safe_name):
     if not validate_magic_bytes(temp_path, extension):
         os.remove(temp_path)
         return None, "Invalid file signature"
-
-    # ✅ FIXED: Deep validation properly placed
+        
     if not deep_validate(temp_path, extension):
         os.remove(temp_path)
         return None, "Deep validation failed"
