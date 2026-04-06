@@ -43,39 +43,38 @@ def upload(current_user):
 
     file = request.files['file']
 
-    # ✅ Step 1: Sanitize
+    # Sanitize
     original_name = file.filename
     safe_name, error = sanitize_file(file)
     if error:
         return jsonify({'error': error}), 400
 
-    # ✅ Step 2: Validate
+    #Validate
     temp_path, error = validate_file(file, safe_name)
     if error:
         return jsonify({'error': error}), 400
 
-    # ✅ Step 3: Read validated file
     with open(temp_path, 'rb') as f:
         data = f.read()
 
-    os.remove(temp_path)  # cleanup temp
+    os.remove(temp_path)  
 
-    # ✅ Step 4: Hash
+    #Hash
     file_hash = sha256(data)
 
-    # ✅ Step 5: Encryption
+    #Encryption
     dek = generate_dek()
     ct, nonce = encrypt_bytes(data, dek)
     enc_dek = encrypt_dek_with_kek(dek)
 
-    # ✅ Step 6: Store file
+    #Store file
     fid = base64.urlsafe_b64encode(os.urandom(16)).decode().rstrip('=')
     diskname = f"{fid}.enc"
 
     with open(os.path.join(UPLOAD_DIR, diskname), 'wb') as f:
         f.write(nonce + ct)
 
-    # ✅ Step 7: Save metadata
+    #Save metadata
     meta = {
         'file_id': fid,
         'original_name': original_name,
